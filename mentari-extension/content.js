@@ -2085,6 +2085,69 @@ async function getActiveTaskInfo() {
   };
 }
 
+// Run Quiz (Pre-Test / Post-Test) automation directly in the browser (zero dependencies)
+async function runQuizAutomationLocally(taskInfo) {
+  const token = getAuthToken();
+  if (!token) throw new Error("Token tidak terdeteksi. Silakan login kembali.");
+  
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+    'Accept': 'application/json, text/plain, */*'
+  };
+
+  const subSectionId = taskInfo.id_sub_section;
+
+  // 1. Start Quiz
+  const startRes = await fetch(`https://mentari.unpam.ac.id/api/quiz/start/${subSectionId}`, {
+    method: 'PUT',
+    headers: headers,
+    body: JSON.stringify({ "id_trx_course_sub_section": subSectionId, "reset": true })
+  });
+  if (!startRes.ok) throw new Error(`Gagal memulai kuis (HTTP ${startRes.status})`);
+
+  // 2. Ambil Soal
+  const soalRes = await fetch(`https://mentari.unpam.ac.id/api/quiz/soal/${subSectionId}`, {
+    method: 'GET',
+    headers: headers
+  });
+  if (!soalRes.ok) throw new Error(`Gagal mengambil soal (HTTP ${soalRes.status})`);
+  
+  const resSoalData = await soalRes.json();
+  const soalList = resSoalData.data || [];
+  
+  if (soalList.length === 0) {
+    throw new Error("Tidak ada soal ditemukan dalam kuis ini.");
+  }
+
+  // 3. Jawab soal (memilih opsi jawaban pertama secara default)
+  for (let i = 0; i < soalList.length; i++) {
+    const soal = soalList[i];
+    const jawabanTerpilih = soal.list_jawaban ? soal.list_jawaban[0] : null;
+    if (jawabanTerpilih) {
+      const jawabRes = await fetch(`https://mentari.unpam.ac.id/api/quiz/jawab`, {
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify({
+          "id_trx_quiz_user_soal": soal.id,
+          "id_jawaban": jawabanTerpilih.id
+        })
+      });
+      if (!jawabRes.ok) {
+        console.warn(`Gagal menjawab soal ke-${i+1}`);
+      }
+    }
+  }
+
+  // 4. End Quiz
+  const endRes = await fetch(`https://mentari.unpam.ac.id/api/quiz/end`, {
+    method: 'PUT',
+    headers: headers,
+    body: JSON.stringify({ "id_trx_course_sub_section": subSectionId })
+  });
+  if (!endRes.ok) throw new Error(`Gagal menyelesaikan kuis (HTTP ${endRes.status})`);
+}
+
 let isAutomating = false;
 
 async function triggerAutomation(taskInfo, buttons) {
@@ -2099,89 +2162,114 @@ async function triggerAutomation(taskInfo, buttons) {
     if (btn.id === 'mh-automate-float-btn') {
       btn.innerHTML = '<span>⏳</span> Automating...';
     } else {
-      btn.innerHTML = '<span>⏳</span> Menjalankan CLI...';
+      btn.innerHTML = '<span>⏳</span> Menjalankan...';
     }
   });
   
-  showToast("Mengirim perintah ke bridge server lokal...");
+  showToast("Menjalankan otomatisasi kuis langsung di browser...");
   
   try {
-    const token = getAuthToken();
-    if (!token) throw new Error("Token tidak terdeteksi. Silakan login kembali.");
+    // 1. Coba eksekusi langsung di browser (Tanpa Server Jembatan / FlareSolverr)
+    await runQuizAutomationLocally(taskInfo);
     
-    const response = await fetch('http://localhost:3000/automate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        token: token,
-        kode_course: taskInfo.kode_course,
-        kode_section: taskInfo.kode_section,
-        task_type: taskInfo.task_type,
-        id_sub_section: taskInfo.id_sub_section
-      })
-    });
-    
-    if (!response.ok) {
-      const errText = await response.text();
-      let errMsg = `HTTP ${response.status}`;
-      try {
-        const errJson = JSON.parse(errText);
-        errMsg = errJson.error || errMsg;
-      } catch(e) {}
-      throw new Error(errMsg);
-    }
-    
-    const data = await response.json();
-    if (data.success) {
-      // Success state
-      buttons.forEach(btn => {
-        if (!btn) return;
-        btn.classList.remove('running');
-        btn.classList.add('success');
-        btn.innerHTML = '<span>✅</span> Berhasil!';
-      });
-      
-      showToast(data.message || "Otomatisasi selesai!");
-      
-      // Refresh course list
-      setTimeout(() => {
-        loadWidgetData();
-      }, 2000);
-      
-    } else {
-      throw new Error(data.error || "Gagal menjalankan otomatisasi.");
-    }
-  } catch (error) {
-    console.error("Automation error:", error);
-    
+    // Sukses
     buttons.forEach(btn => {
       if (!btn) return;
       btn.classList.remove('running');
-      btn.classList.add('error');
-      btn.innerHTML = '<span>❌</span> Gagal';
+      btn.classList.add('success');
+      btn.innerHTML = '<span>✅</span> Berhasil!';
     });
     
-    if (error.message.includes('Failed to fetch')) {
-      showToast("Gagal terhubung ke Server Lokal. Pastikan 'node server.js' berjalan di port 3000.", true);
-    } else {
-      showToast(`Error: ${error.message}`, true);
+    const tipeKuis = taskInfo.task_type === 'PRE_TEST' ? 'Pre-Test' : 'Post-Test';
+    showToast(`Otomatisasi ${tipeKuis} berhasil diselesaikan langsung di browser! 🎉`);
+    
+    // Refresh data widget
+    setTimeout(() => {
+      loadWidgetData();
+    }, 2000);
+    
+  } catch (browserError) {
+    console.warn("Otomatisasi browser langsung gagal, mencoba fallback ke Server Jembatan lokal:", browserError);
+    showToast("Gagal langsung di browser. Mencoba hubungkan ke Server Lokal...", true);
+    
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error("Token tidak terdeteksi. Silakan login kembali.");
+      
+      const response = await fetch('http://localhost:3000/automate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token: token,
+          kode_course: taskInfo.kode_course,
+          kode_section: taskInfo.kode_section,
+          task_type: taskInfo.task_type,
+          id_sub_section: taskInfo.id_sub_section
+        })
+      });
+      
+      if (!response.ok) {
+        const errText = await response.text();
+        let errMsg = `HTTP ${response.status}`;
+        try {
+          const errJson = JSON.parse(errText);
+          errMsg = errJson.error || errMsg;
+        } catch(e) {}
+        throw new Error(errMsg);
+      }
+      
+      const data = await response.json();
+      if (data.success) {
+        // Success state
+        buttons.forEach(btn => {
+          if (!btn) return;
+          btn.classList.remove('running');
+          btn.classList.add('success');
+          btn.innerHTML = '<span>✅</span> Berhasil!';
+        });
+        
+        showToast(data.message || "Otomatisasi kuis selesai via server jembatan!");
+        
+        // Refresh data
+        setTimeout(() => {
+          loadWidgetData();
+        }, 2000);
+        
+      } else {
+        throw new Error(data.error || "Gagal menjalankan otomatisasi.");
+      }
+    } catch (error) {
+      console.error("Automation error:", error);
+      
+      buttons.forEach(btn => {
+        if (!btn) return;
+        btn.classList.remove('running');
+        btn.classList.add('error');
+        btn.innerHTML = '<span>❌</span> Gagal';
+      });
+      
+      if (error.message.includes('Failed to fetch')) {
+        showToast("Server Lokal Offline & Browser Gagal. Pastikan Anda sudah login atau jalankan 'node server.js'.", true);
+      } else {
+        showToast(`Error: ${error.message}`, true);
+      }
     }
   } finally {
     isAutomating = false;
-    // Revert button states back to normal after 5 seconds
+    // Kembalikan status tombol setelah 5 detik
     setTimeout(() => {
       buttons.forEach(btn => {
         if (!btn) return;
         btn.classList.remove('success', 'error');
         btn.disabled = false;
         
-        // Restore original HTML
+        // Kembalikan teks asli
         if (btn.id === 'mh-automate-float-btn') {
           btn.innerHTML = '<span>🤖</span> Automate';
         } else {
-          const text = taskInfo.completion ? 'Selesai (Automate Lagi)' : 'Automate via CLI';
+          const text = taskInfo.completion ? 'Selesai (Automate Lagi)' : '🤖 Jalankan Automate';
           const icon = taskInfo.completion ? '✅' : '🤖';
           btn.innerHTML = `<span>${icon}</span> ${text}`;
         }
@@ -2191,7 +2279,7 @@ async function triggerAutomation(taskInfo, buttons) {
 }
 
 async function updateActivePageAutomateCard() {
-  if (isMyUnpam) return; // Only Mentari has automated CLI tasks
+  if (isMyUnpam) return; // Hanya Mentari yang memiliki tugas otomatisasi
   
   const card = document.getElementById('mh-active-automate-card');
   const floatBtn = document.getElementById('mh-automate-float-btn');
@@ -2200,8 +2288,8 @@ async function updateActivePageAutomateCard() {
   const taskInfo = await getActiveTaskInfo();
   
   if (taskInfo) {
-    // Show active page automation components
-    const text = taskInfo.completion ? 'Selesai (Automate Lagi)' : 'Automate via CLI';
+    // Tampilkan komponen otomatisasi halaman aktif
+    const text = taskInfo.completion ? 'Selesai (Automate Lagi)' : '🤖 Jalankan Automate';
     const icon = taskInfo.completion ? '✅' : '🤖';
     
     card.innerHTML = `
@@ -2221,11 +2309,11 @@ async function updateActivePageAutomateCard() {
     card.style.display = 'block';
     floatBtn.style.display = 'block';
 
-    // Add event listener to the new button
+    // Pasang event listener ke tombol baru
     const btn = document.getElementById('mh-active-card-btn');
     btn.addEventListener('click', () => triggerAutomation(taskInfo, [btn, floatBtn]));
   } else {
-    // Hide components
+    // Sembunyikan komponen jika bukan halaman kuis
     card.style.display = 'none';
     floatBtn.style.display = 'none';
   }
