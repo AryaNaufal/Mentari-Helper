@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Mentari Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="glass-header">
+      <div class="brand">
+        <span class="logo-dot"></span>
+        <h1>Mentari <span>Helper</span></h1>
+      </div>
+      <div class="badge neon-text">v1.0.0</div>
+    </header>
+
+    <!-- User Profile Section -->
+    <div id="user-profile" class="profile-card glass-panel">
+      <div class="shimmer-avatar"></div>
+      <div class="profile-info">
+        <h3 id="user-name">Menghubungkan...</h3>
+        <p id="user-nim">Buka situs Mentari untuk memulai</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="actions-grid">
+      <button id="btn-quick-kuesioner" class="action-btn glass-btn">
+        <span class="btn-icon">📋</span>
+        <span class="btn-text">Auto Kuesioner</span>
+      </button>
+      <button id="btn-refresh" class="action-btn glass-btn secondary">
+        <span class="btn-icon">🔄</span>
+        <span class="btn-text">Refresh Data</span>
+      </button>
+    </div>
+
+    <!-- Course Progress List -->
+    <main class="content-area">
+      <h2>Daftar Mata Kuliah</h2>
+      <div id="course-list" class="scroll-list">
+        <div class="empty-state">
+          <p>Belum ada data. Silakan login ke Mentari dan buka salah satu kelas Anda.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Mentari E-Learning Helper",
+  "version": "1.0.0",
+  "description": "Asisten cerdas untuk memantau progres, mengisi kuesioner, dan forum di Mentari UNPAM.",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://mentari.unpam.ac.id/*",
+    "https://my.unpam.ac.id/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mentari.unpam.ac.id/*",
+        "https://my.unpam.ac.id/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
