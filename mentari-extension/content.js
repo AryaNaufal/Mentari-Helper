@@ -1377,6 +1377,7 @@ async function loadMyUnpamAttendance() {
 
     allAttendanceData = await Promise.all(attendancePromises);
     renderAttendance();
+    updateScheduleAndCountdown();
 
   } catch (e) {
     container.innerHTML = `<div class="mh-list-item" style="color: var(--mh-warning); text-align: center;">Gagal memuat presensi: ${e.message}</div>`;
@@ -2262,3 +2263,394 @@ setInterval(async () => {
     await updateActivePageAutomateCard();
   }
 }, 1500);
+
+
+// --- 5. NEW FEATURES IMPLEMENTATION ---
+
+// Global states for new features
+let gpaData = [];
+
+// Helper function to estimate class hours based on shift & SKS
+function parseClassTime(shift = '', sks = 2) {
+  const s = shift.toUpperCase();
+  if (s.includes('E-1')) return '07:30 - 09:30';
+  if (s.includes('E-2')) return '09:40 - 12:10';
+  if (s.includes('E-3')) return '13:00 - 15:30';
+  if (s.includes('E-4')) return '15:40 - 18:10';
+  if (s.startsWith('A')) return '07:30 - 09:10';
+  if (s.startsWith('B')) return '18:30 - 20:10';
+  if (s.startsWith('C')) return '07:30 - 12:00';
+  return 'Sesuai Jadwal';
+}
+
+// 1. Batch Downloader: Download all course materials sequentially
+async function downloadAllCourseMaterials(courseName, files, buttonId, statusId) {
+  const token = getAuthToken();
+  if (!token) {
+    showToast("Token tidak terdeteksi. Silakan login kembali.", true);
+    return;
+  }
+
+  const btn = document.getElementById(buttonId);
+  const status = document.getElementById(statusId);
+  if (!btn) return;
+
+  btn.disabled = true;
+  btn.textContent = "⏳ Downloading...";
+  
+  const headers = { 'Authorization': `Bearer ${token}` };
+  let successCount = 0;
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    status.textContent = `Mengunduh ${i + 1}/${files.length}: ${file.sectionName}`;
+    
+    try {
+      const response = await fetch(`https://mentari.unpam.ac.id/api/file/${file.fileId}`, { headers });
+      if (!response.ok) throw new Error();
+      
+      const blob = await response.blob();
+      
+      // Determine file extension from Content-Type
+      let ext = '.pdf';
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('presentation') || contentType.includes('powerpoint')) ext = '.pptx';
+      else if (contentType.includes('word')) ext = '.docx';
+      else if (contentType.includes('spreadsheet') || contentType.includes('excel')) ext = '.xlsx';
+      else if (contentType.includes('zip')) ext = '.zip';
+
+      const filename = `${courseName} - ${file.sectionName} - ${file.title}${ext}`.replace(/[\\/:*?"<>|]/g, '_');
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      successCount++;
+      await new Promise(r => setTimeout(r, 1000)); // Rate limit buffer
+    } catch (e) {
+      console.error("Gagal mengunduh file:", file.fileId, e);
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = "📥 Unduh Semua";
+  status.textContent = `Berhasil mengunduh ${successCount}/${files.length} file!`;
+  showToast(`Selesai! ${successCount} file materi berhasil diunduh.`);
+}
+
+// 2. Schedule & Live Countdown
+function updateScheduleAndCountdown() {
+  const countdownContainer = document.getElementById('mh-countdown-container');
+  const scheduleSection = document.getElementById('mh-schedule-section');
+  const scheduleList = document.getElementById('mh-schedule-list-container');
+  
+  if (!scheduleSection || !scheduleList) return;
+
+  const daysOrder = { 'Minggu': 0, 'Senin': 1, 'Selasa': 2, 'Rabu': 3, 'Kamis': 4, 'Jumat': 5, 'Sabtu': 6 };
+  const todayNum = new Date().getDay(); // 0 is Sunday, 1 is Monday...
+
+  // Gather schedule from processed courses
+  let schedules = [];
+  if (isMyUnpam) {
+    schedules = allAttendanceData.map(c => {
+      const dayName = c.course.hari_kuliah || 'Sabtu';
+      const timeStr = `${c.course.jam_mulai || '07:30'} - ${c.course.jam_selesai || '12:00'}`;
+      return {
+        name: c.course.nama_mata_kuliah,
+        dosen: c.course.nama_dosen || 'Dosen Pengampu',
+        day: dayName,
+        dayNum: daysOrder[dayName] !== undefined ? daysOrder[dayName] : 6,
+        time: timeStr,
+        ruang: c.course.ruangan || 'Online / Sesuai Jadwal'
+      };
+    });
+  } else {
+    schedules = allProcessedCourses.map(c => {
+      const coursename = c.course.coursename || '';
+      const dayMatch = coursename.match(/\(([^)]+)\)/);
+      const dayName = dayMatch ? dayMatch[1] : 'Sabtu';
+      const shiftMatch = coursename.match(/\[([^\]]+)\]$/);
+      const shiftStr = shiftMatch ? shiftMatch[1] : 'E-1';
+      const sks = c.course.sks || 2;
+      return {
+        name: c.course.nama_mata_kuliah,
+        dosen: c.course.nama_dosen || 'Dosen Pengampu',
+        day: dayName,
+        dayNum: daysOrder[dayName] !== undefined ? daysOrder[dayName] : 6,
+        time: parseClassTime(shiftStr, sks),
+        ruang: shiftStr
+      };
+    });
+  }
+
+  if (schedules.length === 0) {
+    scheduleSection.style.display = 'none';
+    if (countdownContainer) countdownContainer.style.display = 'none';
+    return;
+  }
+
+  // Sort schedule: Today first, then subsequent days
+  schedules.sort((a, b) => {
+    let diffA = (a.dayNum - todayNum + 7) % 7;
+    let diffB = (b.dayNum - todayNum + 7) % 7;
+    if (diffA === diffB) {
+      return a.time.localeCompare(b.time);
+    }
+    return diffA - diffB;
+  });
+
+  scheduleSection.style.display = 'block';
+  scheduleList.innerHTML = '';
+
+  schedules.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'mh-schedule-card';
+    card.innerHTML = `
+      <div class="mh-schedule-info">
+        <div class="mh-schedule-subject">${s.name}</div>
+        <div class="mh-schedule-meta">
+          <span class="mh-schedule-day-badge">${s.day}</span>
+          <span>${s.time}</span>
+          <span>| Ruang: ${s.ruang}</span>
+        </div>
+      </div>
+    `;
+    scheduleList.appendChild(card);
+  });
+
+  // Calculate Countdown to nearest next class
+  if (countdownContainer) {
+    const nearest = schedules[0];
+    const diffDays = (nearest.dayNum - todayNum + 7) % 7;
+    
+    let countdownText = "";
+    let isToday = diffDays === 0;
+    
+    if (isToday) {
+      countdownText = `Hari Ini (${nearest.time})`;
+    } else if (diffDays === 1) {
+      countdownText = `Besok (${nearest.day})`;
+    } else {
+      countdownText = `${diffDays} hari lagi (${nearest.day})`;
+    }
+
+    countdownContainer.innerHTML = `
+      <div class="mh-countdown-card">
+        <div class="mh-countdown-title">🔔 Kelas Terdekat</div>
+        <div class="mh-countdown-time">${nearest.name}</div>
+        <div class="mh-countdown-sub">${countdownText} | ${nearest.time} | Ruang ${nearest.ruang}</div>
+      </div>
+    `;
+    countdownContainer.style.display = 'block';
+  }
+}
+
+// 3. KHS / Grades Fetcher
+async function fetchMyUnpamGrades() {
+  const token = getAuthToken();
+  const xsrf = getXsrfToken();
+  if (!token) {
+    showToast("Token tidak terdeteksi. Silakan login kembali.", true);
+    return;
+  }
+
+  const btn = document.getElementById('mh-btn-load-grades-auto');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "⏳ Memuat Nilai...";
+  }
+
+  const headers = {
+    'Accept': 'application/json, text/plain, */*',
+    'Authorization': `Bearer ${token}`,
+    'X-Xsrf-Token': xsrf
+  };
+
+  // Try standard academic records API endpoints in sequence
+  const urls = [
+    'https://my.unpam.ac.id/api/akademik/mahasiswa/transkrip',
+    'https://my.unpam.ac.id/api/akademik/transkrip',
+    'https://my.unpam.ac.id/api/khs/mahasiswa',
+    'https://my.unpam.ac.id/api/akademik/mahasiswa/khs'
+  ];
+
+  let success = false;
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, { headers });
+      if (response.ok) {
+        const resJson = await response.json();
+        let list = resJson.data || resJson || [];
+        
+        if (Array.isArray(list) && list.length > 0) {
+          // Format into gpaData groups by semester
+          const grouped = {};
+          list.forEach(item => {
+            const sem = item.semester || item.smt || 1;
+            if (!grouped[sem]) grouped[sem] = [];
+            grouped[sem].push({
+              name: item.nama_mata_kuliah || item.matakuliah || 'Mata Kuliah',
+              sks: parseInt(item.sks || item.sks_mata_kuliah || 2),
+              grade: item.nilai_huruf || item.nilai || 'A'
+            });
+          });
+
+          gpaData = Object.keys(grouped).map(sem => ({
+            semester: parseInt(sem),
+            courses: grouped[sem]
+          }));
+
+          chrome.storage.local.set({ gpaData });
+          success = true;
+          break;
+        }
+      }
+    } catch(e) {}
+  }
+
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = "🔄 Muat Nilai dari MyUnpam";
+  }
+
+  if (success) {
+    showToast("Nilai berhasil dimuat dari MyUnpam! 🎉");
+    renderGradesCalculator();
+  } else {
+    showToast("Gagal memuat otomatis. Silakan tambah semester dan nilai secara manual untuk simulasi.", true);
+  }
+}
+
+// 4. Grades Calculator / Simulation Renderer
+function renderGradesCalculator() {
+  const container = document.getElementById('mh-gpa-semesters-container');
+  if (!container) return;
+
+  chrome.storage.local.get(['gpaData'], (result) => {
+    if (result.gpaData && Array.isArray(result.gpaData)) {
+      gpaData = result.gpaData;
+    } else if (gpaData.length === 0) {
+      // Default: 1 empty semester
+      gpaData = [{ semester: 1, courses: [] }];
+    }
+
+    container.innerHTML = '';
+    
+    let totalQualityPoints = 0;
+    let totalSks = 0;
+
+    const gradeValues = {
+      'A': 4.0, 'A-': 3.75, 'B+': 3.5, 'B': 3.0, 'B-': 2.75, 'C+': 2.5, 'C': 2.0, 'D': 1.0, 'E': 0.0
+    };
+
+    gpaData.forEach((sem, semIdx) => {
+      const box = document.createElement('div');
+      box.className = 'mh-semester-box';
+      
+      let coursesHtml = '';
+      let semSks = 0;
+      let semQualityPoints = 0;
+
+      sem.courses.forEach((c, cIdx) => {
+        const val = gradeValues[c.grade] !== undefined ? gradeValues[c.grade] : 4.0;
+        semSks += c.sks;
+        semQualityPoints += (c.sks * val);
+        totalSks += c.sks;
+        totalQualityPoints += (c.sks * val);
+
+        coursesHtml += `
+          <div class="mh-gpa-row">
+            <input type="text" class="mh-gpa-input-name" data-sem="${semIdx}" data-course="${cIdx}" value="${c.name}" placeholder="Mata Kuliah">
+            <select class="mh-gpa-select mh-gpa-select-sks" data-sem="${semIdx}" data-course="${cIdx}">
+              <option value="1" ${c.sks === 1 ? 'selected' : ''}>1 SKS</option>
+              <option value="2" ${c.sks === 2 ? 'selected' : ''}>2 SKS</option>
+              <option value="3" ${c.sks === 3 ? 'selected' : ''}>3 SKS</option>
+              <option value="4" ${c.sks === 4 ? 'selected' : ''}>4 SKS</option>
+            </select>
+            <select class="mh-gpa-select mh-gpa-select-grade" data-sem="${semIdx}" data-course="${cIdx}">
+              ${Object.keys(gradeValues).map(g => `<option value="${g}" ${c.grade === g ? 'selected' : ''}>Nilai: ${g}</option>`).join('')}
+            </select>
+            <button class="mh-gpa-btn-del" data-sem="${semIdx}" data-course="${cIdx}">❌</button>
+          </div>
+        `;
+      });
+
+      const semGpa = semSks > 0 ? (semQualityPoints / semSks).toFixed(2) : '0.00';
+
+      box.innerHTML = `
+        <div class="mh-semester-header">
+          <span>Semester ${sem.semester} (IPS: ${semGpa})</span>
+          <span>${semSks} SKS &#9662;</span>
+        </div>
+        <div class="mh-semester-body" style="display: flex;">
+          ${coursesHtml}
+          <button class="mh-btn" style="margin-top: 6px; padding: 6px; font-size: 0.76rem;" id="mh-btn-add-course-${semIdx}">
+            ➕ Tambah Mata Kuliah
+          </button>
+        </div>
+      `;
+      
+      container.appendChild(box);
+
+      // Event listener: Add Course inside Semester
+      box.querySelector(`#mh-btn-add-course-${semIdx}`).addEventListener('click', () => {
+        gpaData[semIdx].courses.push({ name: '', sks: 2, grade: 'A' });
+        chrome.storage.local.set({ gpaData });
+        renderGradesCalculator();
+      });
+    });
+
+    // Update summary values
+    const ipk = totalSks > 0 ? (totalQualityPoints / totalSks).toFixed(2) : '0.00';
+    const ipkEl = document.getElementById('mh-gpa-summary-ipk');
+    const sksEl = document.getElementById('mh-gpa-summary-sks');
+    
+    if (ipkEl) ipkEl.textContent = ipk;
+    if (sksEl) sksEl.textContent = totalSks;
+
+    // Attach row input change listeners
+    container.querySelectorAll('.mh-gpa-input-name').forEach(input => {
+      input.addEventListener('change', (e) => {
+        const sem = parseInt(e.target.getAttribute('data-sem'));
+        const idx = parseInt(e.target.getAttribute('data-course'));
+        gpaData[sem].courses[idx].name = e.target.value;
+        chrome.storage.local.set({ gpaData });
+      });
+    });
+
+    container.querySelectorAll('.mh-gpa-select-sks').forEach(select => {
+      select.addEventListener('change', (e) => {
+        const sem = parseInt(e.target.getAttribute('data-sem'));
+        const idx = parseInt(e.target.getAttribute('data-course'));
+        gpaData[sem].courses[idx].sks = parseInt(e.target.value);
+        chrome.storage.local.set({ gpaData });
+        renderGradesCalculator();
+      });
+    });
+
+    container.querySelectorAll('.mh-gpa-select-grade').forEach(select => {
+      select.addEventListener('change', (e) => {
+        const sem = parseInt(e.target.getAttribute('data-sem'));
+        const idx = parseInt(e.target.getAttribute('data-course'));
+        gpaData[sem].courses[idx].grade = e.target.value;
+        chrome.storage.local.set({ gpaData });
+        renderGradesCalculator();
+      });
+    });
+
+    container.querySelectorAll('.mh-gpa-btn-del').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const sem = parseInt(e.currentTarget.getAttribute('data-sem'));
+        const idx = parseInt(e.currentTarget.getAttribute('data-course'));
+        gpaData[sem].courses.splice(idx, 1);
+        chrome.storage.local.set({ gpaData });
+        renderGradesCalculator();
+      });
+    });
+  });
+}
