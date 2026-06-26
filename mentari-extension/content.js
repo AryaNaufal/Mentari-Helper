@@ -1017,7 +1017,7 @@ async function loadForumTopics(kodeCourse, forumId, topicsContainerId) {
     if (res && res.topics && res.topics.length > 0) {
       container.innerHTML = res.topics.map(topic => `
         <a href="https://mentari.unpam.ac.id/u-courses/${kodeCourse}/forum/${forumId}/topics/${topic.id}" 
-           class="mh-subtopic-link" target="_blank">
+           class="mh-subtopic-link">
           <span>💬</span> ${topic.judul}
         </a>
       `).join('');
@@ -1251,7 +1251,7 @@ function renderCourses(searchQuery = '') {
         
         if (sec.pretest) {
           childItemsHtml += `
-            <a href="https://mentari.unpam.ac.id/u-courses/${c.course.kode_course}/exam/${sec.pretest.id}" class="mh-child-item ${sec.pretest.completion ? 'completed' : ''}" target="_blank">
+            <a href="https://mentari.unpam.ac.id/u-courses/${c.course.kode_course}/exam/${sec.pretest.id}" class="mh-child-item ${sec.pretest.completion ? 'completed' : ''}">
               <span class="mh-child-item-icon">${sec.pretest.completion ? '✅' : '❌'}</span>
               <span class="mh-child-item-title">Pre-test</span>
               <span class="mh-link-icon">&#x2197;</span>
@@ -1261,7 +1261,7 @@ function renderCourses(searchQuery = '') {
         
         if (sec.forum) {
           childItemsHtml += `
-            <a href="https://mentari.unpam.ac.id/u-courses/${c.course.kode_course}/forum/${sec.forum.id}" class="mh-child-item ${sec.forum.completion ? 'completed' : ''}" target="_blank">
+            <a href="https://mentari.unpam.ac.id/u-courses/${c.course.kode_course}/forum/${sec.forum.id}" class="mh-child-item ${sec.forum.completion ? 'completed' : ''}">
               <span class="mh-child-item-icon">${sec.forum.completion ? '✅' : '❌'}</span>
               <span class="mh-child-item-title">Forum Diskusi</span>
               <span class="mh-link-icon">&#x2197;</span>
@@ -1273,7 +1273,7 @@ function renderCourses(searchQuery = '') {
         
         if (sec.posttest) {
           childItemsHtml += `
-            <a href="https://mentari.unpam.ac.id/u-courses/${c.course.kode_course}/exam/${sec.posttest.id}" class="mh-child-item ${sec.posttest.completion ? 'completed' : ''}" target="_blank">
+            <a href="https://mentari.unpam.ac.id/u-courses/${c.course.kode_course}/exam/${sec.posttest.id}" class="mh-child-item ${sec.posttest.completion ? 'completed' : ''}">
               <span class="mh-child-item-icon">${sec.posttest.completion ? '✅' : '❌'}</span>
               <span class="mh-child-item-title">Post-test</span>
               <span class="mh-link-icon">&#x2197;</span>
@@ -1282,7 +1282,7 @@ function renderCourses(searchQuery = '') {
         }
         
         childItemsHtml += `
-          <a href="https://mentari.unpam.ac.id/u-courses/${c.course.kode_course}/kuesioner/${sec.kodeSection}" class="mh-child-item" id="mh-kue-link-${secId}" target="_blank">
+          <a href="https://mentari.unpam.ac.id/u-courses/${c.course.kode_course}/kuesioner/${sec.kodeSection}" class="mh-child-item" id="mh-kue-link-${secId}">
             <span class="mh-child-item-icon" id="mh-kue-status-${secId}">⏳</span>
             <span class="mh-child-item-title">Kuesioner</span>
             <span class="mh-link-icon">&#x2197;</span>
