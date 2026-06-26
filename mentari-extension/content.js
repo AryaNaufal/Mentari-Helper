@@ -1103,8 +1103,8 @@ function buildWidget() {
         </div>
         <div class="mh-title-text">${panelTitle}</div>
         <div class="mh-status-indicator">
-          <span class="mh-status-dot offline" id="mh-server-status-dot"></span>
-          <span class="mh-status-text" id="mh-server-status-text">Server: Offline</span>
+          <span class="mh-status-dot" style="background: var(--mh-success); box-shadow: 0 0 8px var(--mh-success);"></span>
+          <span class="mh-status-text" style="color: var(--mh-text-main); font-weight: 600;">Ready</span>
         </div>
       </div>
 
@@ -1207,12 +1207,8 @@ function buildWidget() {
               <h3 style="font-size: 1rem;">Status Diagnostik</h3>
               <div class="mh-settings-list" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px;">
-                  <span style="color: var(--mh-text-muted);">Bridge Server Status</span>
-                  <span id="mh-settings-server-status" style="color: var(--mh-warning); font-weight: bold;">Offline</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px;">
-                  <span style="color: var(--mh-text-muted);">Docker FlareSolverr Status</span>
-                  <span id="mh-settings-solver-status" style="color: var(--mh-text-muted); font-weight: bold;">Checking...</span>
+                  <span style="color: var(--mh-text-muted);">Extension Mode</span>
+                  <span style="color: var(--mh-success); font-weight: bold;">Browser-Native (No-Bridge)</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding-bottom: 2px;">
                   <span style="color: var(--mh-text-muted);">JWT Authorization Token</span>
@@ -1222,14 +1218,10 @@ function buildWidget() {
             </div>
 
             <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); margin-top: 12px;">
-              <h3 style="font-size: 1.05rem; margin-bottom: 8px;">Panduan Menjalankan Otomatisasi Lokal</h3>
-              <ol style="margin: 0; padding-left: 16px; font-size: 0.78rem; color: var(--mh-text-muted); line-height: 1.6;">
-                <li>Buka Command Prompt (CMD) atau PowerShell.</li>
-                <li>Masuk ke folder project: <code>cd C:\code\Mentari-Helper</code></li>
-                <li>Jalankan server jembatan lokal: <code>node server.js</code></li>
-                <li>Pastikan aplikasi Docker Desktop aktif dan container <code>flaresolverr</code> berjalan di port <code>8191</code>.</li>
-                <li>Buka E-Learning Mentari, masuk ke halaman Pre-Test atau Post-Test, lalu klik tombol <strong>🤖 Automate</strong> yang melayang di pojok kanan bawah.</li>
-              </ol>
+              <h3 style="font-size: 1.05rem; margin-bottom: 8px;">Informasi Penggunaan</h3>
+              <p style="margin: 0; padding: 0; font-size: 0.78rem; color: var(--mh-text-muted); line-height: 1.6;">
+                Otomatisasi kuis berjalan sepenuhnya secara lokal di dalam browser Anda menggunakan API resmi Mentari UNPAM. Tidak ada data pribadi atau token JWT yang dikirimkan ke luar server unpam.ac.id.
+              </p>
             </div>
           </div>
 
@@ -2169,7 +2161,7 @@ async function triggerAutomation(taskInfo, buttons) {
   showToast("Menjalankan otomatisasi kuis langsung di browser...");
   
   try {
-    // 1. Coba eksekusi langsung di browser (Tanpa Server Jembatan / FlareSolverr)
+    // Jalankan eksekusi langsung di browser (Tanpa Server Jembatan)
     await runQuizAutomationLocally(taskInfo);
     
     // Sukses
@@ -2188,74 +2180,17 @@ async function triggerAutomation(taskInfo, buttons) {
       loadWidgetData();
     }, 2000);
     
-  } catch (browserError) {
-    console.warn("Otomatisasi browser langsung gagal, mencoba fallback ke Server Jembatan lokal:", browserError);
-    showToast("Gagal langsung di browser. Mencoba hubungkan ke Server Lokal...", true);
+  } catch (error) {
+    console.error("Automation error:", error);
     
-    try {
-      const token = getAuthToken();
-      if (!token) throw new Error("Token tidak terdeteksi. Silakan login kembali.");
-      
-      const response = await fetch('http://localhost:3000/automate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          token: token,
-          kode_course: taskInfo.kode_course,
-          kode_section: taskInfo.kode_section,
-          task_type: taskInfo.task_type,
-          id_sub_section: taskInfo.id_sub_section
-        })
-      });
-      
-      if (!response.ok) {
-        const errText = await response.text();
-        let errMsg = `HTTP ${response.status}`;
-        try {
-          const errJson = JSON.parse(errText);
-          errMsg = errJson.error || errMsg;
-        } catch(e) {}
-        throw new Error(errMsg);
-      }
-      
-      const data = await response.json();
-      if (data.success) {
-        // Success state
-        buttons.forEach(btn => {
-          if (!btn) return;
-          btn.classList.remove('running');
-          btn.classList.add('success');
-          btn.innerHTML = '<span>✅</span> Berhasil!';
-        });
-        
-        showToast(data.message || "Otomatisasi kuis selesai via server jembatan!");
-        
-        // Refresh data
-        setTimeout(() => {
-          loadWidgetData();
-        }, 2000);
-        
-      } else {
-        throw new Error(data.error || "Gagal menjalankan otomatisasi.");
-      }
-    } catch (error) {
-      console.error("Automation error:", error);
-      
-      buttons.forEach(btn => {
-        if (!btn) return;
-        btn.classList.remove('running');
-        btn.classList.add('error');
-        btn.innerHTML = '<span>❌</span> Gagal';
-      });
-      
-      if (error.message.includes('Failed to fetch')) {
-        showToast("Server Lokal Offline & Browser Gagal. Pastikan Anda sudah login atau jalankan 'node server.js'.", true);
-      } else {
-        showToast(`Error: ${error.message}`, true);
-      }
-    }
+    buttons.forEach(btn => {
+      if (!btn) return;
+      btn.classList.remove('running');
+      btn.classList.add('error');
+      btn.innerHTML = '<span>❌</span> Gagal';
+    });
+    
+    showToast(`Error: ${error.message}`, true);
   } finally {
     isAutomating = false;
     // Kembalikan status tombol setelah 5 detik
@@ -2327,64 +2262,3 @@ setInterval(async () => {
     await updateActivePageAutomateCard();
   }
 }, 1500);
-
-
-
-// --- 4. REAL-TIME BRIDGE HEALTH CHECK ---
-
-async function checkServerHealth() {
-  const dot = document.getElementById('mh-server-status-dot');
-  const text = document.getElementById('mh-server-status-text');
-  const settingsStatus = document.getElementById('mh-settings-server-status');
-  const solverStatus = document.getElementById('mh-settings-solver-status');
-  
-  try {
-    const response = await fetch('http://localhost:3000/health');
-    if (response.ok) {
-      const data = await response.json();
-      
-      // Node server is online
-      if (dot) {
-        dot.className = 'mh-status-dot';
-        dot.style.background = 'var(--mh-success)';
-        dot.style.boxShadow = '0 0 8px var(--mh-success)';
-      }
-      if (text) text.textContent = 'Server: Online';
-      if (settingsStatus) {
-        settingsStatus.textContent = 'Online';
-        settingsStatus.style.color = 'var(--mh-success)';
-      }
-      
-      // FlareSolverr status from response
-      if (solverStatus) {
-        if (data.flaresolverr === 'online') {
-          solverStatus.textContent = 'Running';
-          solverStatus.style.color = 'var(--mh-success)';
-        } else {
-          solverStatus.textContent = 'Stopped / Offline';
-          solverStatus.style.color = 'var(--mh-warning)';
-        }
-      }
-    }
-  } catch (e) {
-    // Node server is offline
-    if (dot) {
-      dot.className = 'mh-status-dot offline';
-      dot.style.background = 'var(--mh-warning)';
-      dot.style.boxShadow = '0 0 8px var(--mh-warning)';
-    }
-    if (text) text.textContent = 'Server: Offline';
-    if (settingsStatus) {
-      settingsStatus.textContent = 'Offline';
-      settingsStatus.style.color = 'var(--mh-warning)';
-    }
-    if (solverStatus) {
-      solverStatus.textContent = 'Unknown (Server Offline)';
-      solverStatus.style.color = 'var(--mh-text-muted)';
-    }
-  }
-}
-
-// Start checking health
-setInterval(checkServerHealth, 4000);
-checkServerHealth();
