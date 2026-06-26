@@ -92,7 +92,7 @@ function isExtensionValid() {
 const styleElement = document.createElement('style');
 styleElement.textContent = `
   :root {
-    --mh-bg: rgba(13, 15, 20, 0.88);
+    --mh-bg: rgba(13, 27, 42, 0.88);
     --mh-border: rgba(255, 255, 255, 0.08);
     --mh-accent: #3b82f6;
     --mh-accent-glow: rgba(59, 130, 246, 0.4);
@@ -121,7 +121,7 @@ styleElement.textContent = `
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: var(--mh-bg);
+    background: rgba(13, 27, 42, 0.85);
     backdrop-filter: blur(12px);
     border: 1px solid var(--mh-border);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 15px rgba(59, 130, 246, 0.2);
@@ -160,9 +160,9 @@ styleElement.textContent = `
   .mh-panel {
     width: 70vw;
     height: 70vh;
-    background: var(--mh-bg);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--mh-border);
+    background: rgba(13, 27, 42, 0.88);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     position: fixed;
@@ -187,6 +187,200 @@ styleElement.textContent = `
     opacity: 1;
   }
 
+  /* Title Bar (Hacker-style window header) */
+  .mh-title-bar {
+    height: 38px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    user-select: none;
+    cursor: default;
+  }
+  
+  .mh-window-dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .mh-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .mh-dot:hover {
+    transform: scale(1.15);
+  }
+  
+  .mh-dot.red { background: #ff5f56; }
+  .mh-dot.yellow { background: #ffbd2e; }
+  .mh-dot.green { background: #27c93f; }
+  
+  .mh-title-text {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--mh-text-muted);
+    letter-spacing: 0.08em;
+  }
+  
+  .mh-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .mh-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mh-warning);
+    box-shadow: 0 0 8px var(--mh-warning);
+    transition: all 0.3s ease;
+  }
+  
+  .mh-status-text {
+    font-size: 0.7rem;
+    color: var(--mh-text-muted);
+    font-weight: 600;
+  }
+
+  /* Layout Structure */
+  .mh-panel-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Sidebar (Left column) */
+  .mh-sidebar {
+    width: 190px;
+    background: rgba(0, 0, 0, 0.22);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    padding: 16px 10px;
+    gap: 16px;
+    overflow-y: auto;
+    user-select: none;
+  }
+  
+  .mh-sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .mh-sidebar-header {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--mh-text-muted);
+    padding-left: 8px;
+    margin-bottom: 4px;
+    letter-spacing: 0.06em;
+    opacity: 0.8;
+  }
+  
+  .mh-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--mh-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .mh-sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--mh-text-main);
+  }
+  
+  .mh-sidebar-item.active {
+    background: rgba(59, 130, 246, 0.85);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  }
+
+  /* Content Pane (Right column) */
+  .mh-content-pane {
+    flex: 1;
+    padding: 16px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.005);
+  }
+
+  .mh-tab-content {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+  }
+
+  .mh-tab-content.active {
+    display: flex;
+  }
+
+  /* Welcome Banner Card */
+  .mh-welcome-banner {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.04));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+  }
+  
+  .mh-welcome-banner h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  
+  .mh-welcome-banner p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--mh-text-muted);
+  }
+  
+  .mh-welcome-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 0.65rem;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: var(--mh-accent);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .mh-card-section-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--mh-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 8px;
+    margin-bottom: 2px;
+  }
+
   /* Flex Search Row */
   .mh-search-row {
     display: flex;
@@ -199,61 +393,12 @@ styleElement.textContent = `
     flex: 1;
   }
 
-  .mh-search-row .mh-actions {
-    flex: 1;
-    margin: 0;
-  }
-
-  /* Header */
-  .mh-header {
-    padding: 14px 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: default;
-    user-select: none;
-    background: rgba(255, 255, 255, 0.02);
-  }
-
-  .mh-header h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #fff 30%, var(--mh-accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .mh-header .close-btn {
-    background: none;
-    border: none;
-    color: var(--mh-text-muted);
-    font-size: 1.25rem;
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-
-  .mh-header .close-btn:hover {
-    color: #fff;
-  }
-
-  /* Content */
-  .mh-body {
-    padding: 14px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    overflow-y: auto;
-  }
-
   /* User Profile Card */
   .mh-profile {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
     border-radius: 12px;
-    padding: 10px 12px;
+    padding: 10px 14px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -279,7 +424,7 @@ styleElement.textContent = `
 
   .mh-profile-info h4 {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: var(--mh-text-main);
     white-space: nowrap;
@@ -289,26 +434,21 @@ styleElement.textContent = `
 
   .mh-profile-info p {
     margin: 2px 0 0 0;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--mh-text-muted);
   }
 
-  /* Filter Controls */
+  /* Filter Controls (Checkbox label) */
   .mh-controls {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    border-radius: 8px;
-    padding: 8px 12px;
   }
 
   .mh-checkbox-label {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: var(--mh-text-main);
     cursor: pointer;
     user-select: none;
@@ -335,7 +475,7 @@ styleElement.textContent = `
     box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
   }
 
-  #mh-search-input {
+  #mh-search-input, #mh-search-input-presensi {
     background: transparent;
     border: none;
     outline: none;
@@ -345,7 +485,7 @@ styleElement.textContent = `
     flex: 1;
   }
 
-  #mh-search-input::placeholder {
+  #mh-search-input::placeholder, #mh-search-input-presensi::placeholder {
     color: var(--mh-text-muted);
   }
 
@@ -409,14 +549,6 @@ styleElement.textContent = `
     overflow: hidden;
   }
 
-  .mh-list-section h5 {
-    margin: 0 0 8px 0;
-    font-size: 0.8rem;
-    color: var(--mh-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
   .mh-list {
     flex: 1;
     overflow-y: auto;
@@ -437,8 +569,8 @@ styleElement.textContent = `
 
   /* Course Card */
   .mh-course-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.03);
     border-radius: 12px;
     padding: 10px 12px;
     display: flex;
@@ -492,8 +624,8 @@ styleElement.textContent = `
   /* Section Dropdown */
   .mh-section-dropdown {
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.015);
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.025);
     overflow: hidden;
     margin-top: 4px;
   }
@@ -504,17 +636,17 @@ styleElement.textContent = `
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    background: rgba(255, 255, 255, 0.01);
+    background: rgba(255, 255, 255, 0.005);
     user-select: none;
     transition: background 0.2s;
   }
 
   .mh-section-header:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.02);
   }
 
   .mh-section-title {
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 600;
     color: var(--mh-text-main);
   }
@@ -538,10 +670,10 @@ styleElement.textContent = `
   .mh-section-body {
     display: none;
     padding: 8px 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.02);
     flex-direction: column;
     gap: 6px;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.08);
   }
 
   .mh-section-dropdown.expanded .mh-section-body {
@@ -563,7 +695,7 @@ styleElement.textContent = `
 
   .mh-child-item:hover {
     color: var(--mh-text-main);
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.03);
   }
 
   .mh-child-item.completed {
@@ -599,7 +731,7 @@ styleElement.textContent = `
     display: flex;
     flex-direction: column;
     gap: 4px;
-    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
     padding-left: 10px;
     margin-top: -2px;
     margin-bottom: 4px;
@@ -630,9 +762,9 @@ styleElement.textContent = `
     gap: 6px;
     margin-top: 6px;
     padding: 6px 8px;
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.12);
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.02);
   }
 
   .mh-attendance-row {
@@ -641,7 +773,7 @@ styleElement.textContent = `
     align-items: center;
     font-size: 0.74rem;
     padding: 4px 6px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.015);
   }
 
   .mh-attendance-row:last-child {
@@ -674,6 +806,21 @@ styleElement.textContent = `
   .mh-att-status.alpa {
     color: var(--mh-warning);
     background: rgba(245, 158, 11, 0.12);
+  }
+
+  /* Window Footer status bar */
+  .mh-footer {
+    height: 28px;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 0.68rem;
+    color: var(--mh-text-muted);
+    font-weight: 500;
+    user-select: none;
   }
 
   /* Toasts */
@@ -803,6 +950,7 @@ styleElement.textContent = `
   }
 `;
 document.head.appendChild(styleElement);
+
 
 // Decodes JWT Payload
 function decodeToken(token) {
@@ -945,37 +1093,153 @@ function buildWidget() {
 
   root.innerHTML = `
     <!-- Dashboard Panel -->
-    <div class="${isMyUnpam ? 'mh-panel myunpam-mode' : 'mh-panel'}" id="mh-dashboard-panel">
-      <div class="mh-header" id="mh-panel-header">
-        <h3>${panelTitle}</h3>
-        <button class="close-btn" id="mh-close-panel">&times;</button>
-      </div>
-      <div class="mh-body">
-        ${profileHtml}
-
-        ${checkboxHtml}
-
-        <!-- Active Page Automation Card -->
-        <div id="mh-active-automate-card" style="display: none; margin-bottom: 12px;"></div>
-
-        <!-- Search Bar & Actions -->
-        <div class="mh-search-row">
-          <div class="mh-search-container">
-            <input type="text" id="mh-search-input" placeholder="Cari mata kuliah...">
-            <span class="mh-search-icon">🔍</span>
-          </div>
-          ${actionsHtml}
+    <div class="mh-panel" id="mh-dashboard-panel">
+      <!-- Title Bar -->
+      <div class="mh-title-bar" id="mh-panel-header">
+        <div class="mh-window-dots">
+          <span class="mh-dot red" id="mh-close-panel"></span>
+          <span class="mh-dot yellow"></span>
+          <span class="mh-dot green"></span>
         </div>
+        <div class="mh-title-text">${panelTitle}</div>
+        <div class="mh-status-indicator">
+          <span class="mh-status-dot offline" id="mh-server-status-dot"></span>
+          <span class="mh-status-text" id="mh-server-status-text">Server: Offline</span>
+        </div>
+      </div>
 
-        <!-- Course List -->
-        <div class="mh-list-section">
-          <h5 id="mh-list-title">${isMyUnpam ? "Jadwal & Rekap Absensi" : "Daftar Mata Kuliah"}</h5>
-          <div class="mh-list" id="mh-courses-container">
-            <div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center;">
-              Memuat data...
+      <!-- Main Layout -->
+      <div class="mh-panel-layout">
+        <!-- Sidebar (Left) -->
+        <div class="mh-sidebar">
+          <div class="mh-sidebar-section">
+            <div class="mh-sidebar-header">E-Learning</div>
+            <div class="mh-sidebar-item active" data-tab="dashboard">
+              <span class="mh-sidebar-icon">🏠</span>
+              <span class="mh-sidebar-label">Dashboard</span>
+            </div>
+            <div class="mh-sidebar-item" data-tab="kelas">
+              <span class="mh-sidebar-icon">📚</span>
+              <span class="mh-sidebar-label">Daftar Kelas</span>
+            </div>
+          </div>
+          
+          <div class="mh-sidebar-section">
+            <div class="mh-sidebar-header">Akademik</div>
+            <div class="mh-sidebar-item" data-tab="presensi">
+              <span class="mh-sidebar-icon">📊</span>
+              <span class="mh-sidebar-label">Presensi</span>
+            </div>
+          </div>
+
+          <div class="mh-sidebar-section">
+            <div class="mh-sidebar-header">Asisten</div>
+            <div class="mh-sidebar-item" data-tab="settings">
+              <span class="mh-sidebar-icon">⚙️</span>
+              <span class="mh-sidebar-label">Settings</span>
             </div>
           </div>
         </div>
+
+        <!-- Content Pane (Right) -->
+        <div class="mh-content-pane">
+          
+          <!-- Tab: Dashboard -->
+          <div class="mh-tab-content active" id="mh-tab-dashboard">
+            <div class="mh-welcome-banner">
+              <div class="mh-welcome-badge">Local Build</div>
+              <h3>Welcome back, <span id="mh-welcome-name">User</span>!</h3>
+              <p id="mh-welcome-subtitle">Buka halaman tugas untuk memicu otomatisasi sekali klik.</p>
+            </div>
+            
+            ${profileHtml}
+
+            <!-- Active Page Automation Card -->
+            <div id="mh-active-automate-card" style="display: none; margin-bottom: 12px;"></div>
+
+            <div class="mh-card-section-title">Aksi Cepat</div>
+            ${actionsHtml}
+          </div>
+
+          <!-- Tab: Kelas -->
+          <div class="mh-tab-content" id="mh-tab-kelas">
+            <div class="mh-search-row">
+              <div class="mh-search-container">
+                <input type="text" id="mh-search-input" placeholder="Cari mata kuliah...">
+                <span class="mh-search-icon">🔍</span>
+              </div>
+              ${checkboxHtml}
+            </div>
+
+            <div class="mh-list-section">
+              <div class="mh-list" id="mh-courses-container">
+                <div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center;">
+                  Memuat data kelas...
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Presensi -->
+          <div class="mh-tab-content" id="mh-tab-presensi">
+            <div class="mh-search-row">
+              <div class="mh-search-container">
+                <input type="text" id="mh-search-input-presensi" placeholder="Cari mata kuliah presensi...">
+                <span class="mh-search-icon">🔍</span>
+              </div>
+              <button class="mh-btn success-btn" id="mh-action-load-presensi-tab" style="margin: 0; min-width: 180px;">
+                <span>📊</span> Muat Rekap Presensi
+              </button>
+            </div>
+
+            <div class="mh-list-section">
+              <div class="mh-list" id="mh-presensi-container">
+                <div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center; padding: 20px;">
+                  Mata kuliah tidak ditemukan atau rekap belum dimuat. Klik tombol di atas untuk memuat data dari MyUnpam.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Settings -->
+          <div class="mh-tab-content" id="mh-tab-settings">
+            <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05);">
+              <h3 style="font-size: 1rem;">Status Diagnostik</h3>
+              <div class="mh-settings-list" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px;">
+                  <span style="color: var(--mh-text-muted);">Bridge Server Status</span>
+                  <span id="mh-settings-server-status" style="color: var(--mh-warning); font-weight: bold;">Offline</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px;">
+                  <span style="color: var(--mh-text-muted);">Docker FlareSolverr Status</span>
+                  <span id="mh-settings-solver-status" style="color: var(--mh-text-muted); font-weight: bold;">Checking...</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding-bottom: 2px;">
+                  <span style="color: var(--mh-text-muted);">JWT Authorization Token</span>
+                  <span id="mh-settings-token-status" style="color: var(--mh-success); font-weight: bold;">Detected</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); margin-top: 12px;">
+              <h3 style="font-size: 1.05rem; margin-bottom: 8px;">Panduan Menjalankan Otomatisasi Lokal</h3>
+              <ol style="margin: 0; padding-left: 16px; font-size: 0.78rem; color: var(--mh-text-muted); line-height: 1.6;">
+                <li>Buka Command Prompt (CMD) atau PowerShell.</li>
+                <li>Masuk ke folder project: <code>cd C:\code\Mentari-Helper</code></li>
+                <li>Jalankan server jembatan lokal: <code>node server.js</code></li>
+                <li>Pastikan aplikasi Docker Desktop aktif dan container <code>flaresolverr</code> berjalan di port <code>8191</code>.</li>
+                <li>Buka E-Learning Mentari, masuk ke halaman Pre-Test atau Post-Test, lalu klik tombol <strong>🤖 Automate</strong> yang melayang di pojok kanan bawah.</li>
+              </ol>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Footer status bar -->
+      <div class="mh-footer">
+        <div class="mh-footer-left">🟢 Ready | Mentari Helper Local Build</div>
+        <div class="mh-footer-right">v1.0.0 | Press toggle to close</div>
       </div>
     </div>
 
@@ -992,7 +1256,6 @@ function buildWidget() {
       </svg>
     </div>
   `;
-
   document.body.appendChild(root);
 
   setupWidgetEventListeners();
@@ -1077,7 +1340,7 @@ function getXsrfToken() {
 
 // Fetch and display MyUnpam Attendance Data
 async function loadMyUnpamAttendance() {
-  const container = document.getElementById('mh-courses-container');
+  const container = document.getElementById('mh-presensi-container');
   container.innerHTML = '<div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center;">Mengambil jadwal kuliah...</div>';
 
   try {
@@ -1130,7 +1393,7 @@ async function loadMyUnpamAttendance() {
 
 // Render Attendance list inside the courses list container
 function renderAttendance(searchQuery = '') {
-  const container = document.getElementById('mh-courses-container');
+  const container = document.getElementById('mh-presensi-container');
   if (!container) return;
 
   const filtered = allAttendanceData.filter(c => {
@@ -1390,6 +1653,10 @@ async function loadWidgetData() {
     const nimEl = document.getElementById('mh-profile-nim');
     const avatarEl = document.getElementById('mh-avatar-initial');
     if (nameEl) nameEl.textContent = userData.fullname || "User";
+    const welcomeNameEl = document.getElementById('mh-welcome-name');
+    if (welcomeNameEl) {
+      welcomeNameEl.textContent = userData.fullname ? userData.fullname.split(' ')[0] : "User";
+    }
     if (nimEl) nimEl.textContent = `NIM: ${userData.username || "-"}`;
     if (avatarEl) avatarEl.textContent = (userData.fullname || "U").charAt(0).toUpperCase();
 
@@ -1538,6 +1805,39 @@ function setupWidgetEventListeners() {
   const searchInput = document.getElementById('mh-search-input');
   const loadPresensiBtn = document.getElementById('mh-action-load-presensi');
   const gotoPresensiBtn = document.getElementById('mh-action-goto-presensi');
+
+  // Sidebar tab switching
+  document.querySelectorAll('.mh-sidebar-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const targetItem = e.currentTarget;
+      const tabName = targetItem.getAttribute('data-tab');
+      
+      // Update sidebar active class
+      document.querySelectorAll('.mh-sidebar-item').forEach(i => i.classList.remove('active'));
+      targetItem.classList.add('active');
+      
+      // Update tab contents visibility
+      document.querySelectorAll('.mh-tab-content').forEach(c => c.classList.remove('active'));
+      const activeTabContent = document.getElementById(`mh-tab-${tabName}`);
+      if (activeTabContent) activeTabContent.classList.add('active');
+    });
+  });
+
+  // Action Button: Load Attendance Tab
+  const loadPresensiTabBtn = document.getElementById('mh-action-load-presensi-tab');
+  if (loadPresensiTabBtn) {
+    loadPresensiTabBtn.addEventListener('click', () => {
+      loadMyUnpamAttendance();
+    });
+  }
+
+  // Real-time search for presensi tab
+  const searchInputPresensi = document.getElementById('mh-search-input-presensi');
+  if (searchInputPresensi) {
+    searchInputPresensi.addEventListener('input', (e) => {
+      renderAttendance(e.target.value);
+    });
+  }
 
   // Toggle Panel
   toggle.addEventListener('click', () => {
@@ -1941,3 +2241,62 @@ setInterval(async () => {
 }, 1500);
 
 
+
+// --- 4. REAL-TIME BRIDGE HEALTH CHECK ---
+
+async function checkServerHealth() {
+  const dot = document.getElementById('mh-server-status-dot');
+  const text = document.getElementById('mh-server-status-text');
+  const settingsStatus = document.getElementById('mh-settings-server-status');
+  const solverStatus = document.getElementById('mh-settings-solver-status');
+  
+  try {
+    const response = await fetch('http://localhost:3000/health');
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Node server is online
+      if (dot) {
+        dot.className = 'mh-status-dot';
+        dot.style.background = 'var(--mh-success)';
+        dot.style.boxShadow = '0 0 8px var(--mh-success)';
+      }
+      if (text) text.textContent = 'Server: Online';
+      if (settingsStatus) {
+        settingsStatus.textContent = 'Online';
+        settingsStatus.style.color = 'var(--mh-success)';
+      }
+      
+      // FlareSolverr status from response
+      if (solverStatus) {
+        if (data.flaresolverr === 'online') {
+          solverStatus.textContent = 'Running';
+          solverStatus.style.color = 'var(--mh-success)';
+        } else {
+          solverStatus.textContent = 'Stopped / Offline';
+          solverStatus.style.color = 'var(--mh-warning)';
+        }
+      }
+    }
+  } catch (e) {
+    // Node server is offline
+    if (dot) {
+      dot.className = 'mh-status-dot offline';
+      dot.style.background = 'var(--mh-warning)';
+      dot.style.boxShadow = '0 0 8px var(--mh-warning)';
+    }
+    if (text) text.textContent = 'Server: Offline';
+    if (settingsStatus) {
+      settingsStatus.textContent = 'Offline';
+      settingsStatus.style.color = 'var(--mh-warning)';
+    }
+    if (solverStatus) {
+      solverStatus.textContent = 'Unknown (Server Offline)';
+      solverStatus.style.color = 'var(--mh-text-muted)';
+    }
+  }
+}
+
+// Start checking health
+setInterval(checkServerHealth, 4000);
+checkServerHealth();
