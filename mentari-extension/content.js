@@ -546,25 +546,32 @@ styleElement.textContent = `
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
   }
 
   .mh-list {
-    flex: 1;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding-right: 2px;
   }
 
-  .mh-list::-webkit-scrollbar {
-    width: 4px;
+  /* Premium Scrollbar Styling for all scrollable elements */
+  #mentari-helper-root *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
   }
 
-  .mh-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+  #mentari-helper-root *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  #mentari-helper-root *::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+
+  #mentari-helper-root *::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
   }
 
   /* Course Card */
@@ -576,6 +583,7 @@ styleElement.textContent = `
     display: flex;
     flex-direction: column;
     gap: 6px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .mh-course-card-header {
@@ -948,6 +956,185 @@ styleElement.textContent = `
     display: flex;
     gap: 8px;
   }
+
+  /* Keuangan Card with Premium Hover Styles */
+  .mh-keuangan-card {
+    margin-bottom: 10px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    border-left: 3px solid var(--mh-accent);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mh-keuangan-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(59, 130, 246, 0.25);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  /* GPA Summary Card & Items */
+  .mh-gpa-summary-card {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .mh-gpa-summary-item {
+    flex: 1;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.05));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .mh-gpa-val {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 4px;
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+
+  .mh-gpa-lbl {
+    font-size: 0.72rem;
+    color: var(--mh-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* GPA Semester Box & Rows */
+  .mh-semester-box {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+
+  .mh-semester-box:hover {
+    border-color: rgba(59, 130, 246, 0.25);
+  }
+
+  .mh-semester-header {
+    background: rgba(255, 255, 255, 0.025);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .mh-semester-body {
+    padding: 12px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mh-semester-box.expanded .mh-semester-body {
+    display: flex;
+  }
+
+  .mh-semester-box.expanded .mh-semester-chevron {
+    transform: rotate(180deg);
+  }
+
+  .mh-gpa-row-readonly {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+  }
+
+  .mh-gpa-course-name {
+    font-weight: 600;
+    color: var(--mh-text-main);
+  }
+
+  .mh-gpa-course-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mh-gpa-course-sks {
+    color: var(--mh-text-muted);
+    font-weight: 500;
+    font-size: 0.72rem;
+  }
+
+  /* Grade Badge Coloring */
+  .mh-grade-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    display: inline-block;
+    text-align: center;
+    min-width: 16px;
+  }
+
+  .mh-grade-badge.grade-a {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+
+  .mh-grade-badge.grade-b {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+
+  .mh-grade-badge.grade-c {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  .mh-grade-badge.grade-d, .mh-grade-badge.grade-e {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  /* Batch Downloader Style */
+  .mh-materi-download-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px dashed rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-top: 8px;
+  }
+  
+  .mh-download-status-text {
+    font-size: 0.72rem;
+    color: var(--mh-text-muted);
+  }
 `;
 document.head.appendChild(styleElement);
 
@@ -1112,25 +1299,54 @@ function buildWidget() {
       <div class="mh-panel-layout">
         <!-- Sidebar (Left) -->
         <div class="mh-sidebar">
+          <!-- Dashboard selalu tampil -->
           <div class="mh-sidebar-section">
-            <div class="mh-sidebar-header">E-Learning</div>
+            <div class="mh-sidebar-header">${isMyUnpam ? 'MyUnpam' : 'E-Learning'}</div>
             <div class="mh-sidebar-item active" data-tab="dashboard">
               <span class="mh-sidebar-icon">🏠</span>
               <span class="mh-sidebar-label">Dashboard</span>
             </div>
+            ${!isMyUnpam ? `
             <div class="mh-sidebar-item" data-tab="kelas">
               <span class="mh-sidebar-icon">📚</span>
               <span class="mh-sidebar-label">Daftar Kelas</span>
             </div>
+            ` : ''}
           </div>
-          
+
+          ${isMyUnpam ? `
           <div class="mh-sidebar-section">
             <div class="mh-sidebar-header">Akademik</div>
             <div class="mh-sidebar-item" data-tab="presensi">
               <span class="mh-sidebar-icon">📊</span>
-              <span class="mh-sidebar-label">Presensi</span>
+              <span class="mh-sidebar-label">Jadwal & Presensi</span>
+            </div>
+            <div class="mh-sidebar-item" data-tab="nilai">
+              <span class="mh-sidebar-icon">📈</span>
+              <span class="mh-sidebar-label">Rangkuman Nilai</span>
+            </div>
+            <div class="mh-sidebar-item" data-tab="keuangan">
+              <span class="mh-sidebar-icon">💳</span>
+              <span class="mh-sidebar-label">Keuangan</span>
+            </div>
+            <div class="mh-sidebar-item" data-tab="krs">
+              <span class="mh-sidebar-icon">🔍</span>
+              <span class="mh-sidebar-label">KRS & Kelas</span>
+            </div>
+            <div class="mh-sidebar-item" data-tab="tugas-akhir">
+              <span class="mh-sidebar-icon">🎓</span>
+              <span class="mh-sidebar-label">Tugas Akhir</span>
+            </div>
+            <div class="mh-sidebar-item" data-tab="biodata">
+              <span class="mh-sidebar-icon">👤</span>
+              <span class="mh-sidebar-label">Profil & Akademik</span>
+            </div>
+            <div class="mh-sidebar-item" data-tab="informasi">
+              <span class="mh-sidebar-icon">📢</span>
+              <span class="mh-sidebar-label">Informasi</span>
             </div>
           </div>
+          ` : ''}
 
           <div class="mh-sidebar-section">
             <div class="mh-sidebar-header">Asisten</div>
@@ -1201,6 +1417,110 @@ function buildWidget() {
             </div>
           </div>
 
+          <!-- Tab: Nilai -->
+          <div class="mh-tab-content" id="mh-tab-nilai">
+            <div id="mh-gpa-student-info" style="display: none; margin-bottom: 12px;"></div>
+            <div class="mh-gpa-summary-card">
+              <div class="mh-gpa-summary-item">
+                <span class="mh-gpa-val" id="mh-gpa-summary-ipk">0.00</span>
+                <span class="mh-gpa-lbl">IP Kumulatif (IPK)</span>
+              </div>
+              <div class="mh-gpa-summary-item">
+                <span class="mh-gpa-val" id="mh-gpa-summary-sks">0</span>
+                <span class="mh-gpa-lbl">Total SKS</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+              <button class="mh-btn success-btn" id="mh-btn-load-grades-auto" style="flex: 1; margin: 0;">
+                🔄 Muat Rangkuman Nilai
+              </button>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+              <button class="mh-btn" id="mh-btn-print-rangkuman" style="flex: 1; margin: 0; font-size: 0.74rem; background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.2);">
+                🖨️ Cetak Rangkuman Nilai (PDF)
+              </button>
+            </div>
+            <div class="mh-list-section" id="mh-gpa-semesters-container">
+              <!-- Rendered dynamic semesters -->
+            </div>
+          </div>
+
+          <!-- Tab: Keuangan -->
+          <div class="mh-tab-content" id="mh-tab-keuangan">
+            <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); margin-bottom: 12px;">
+              <h3 style="font-size: 1.05rem;">💳 Keuangan & Pembayaran</h3>
+              <p style="margin: 0; padding: 0; font-size: 0.78rem; color: var(--mh-text-muted);">Monitor status transaksi SPP dan tagihan kuliah Anda langsung dari MyUnpam.</p>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+              <button class="mh-btn success-btn" id="mh-btn-load-keuangan" style="flex: 1; margin: 0;">📊 Sinkronisasi Data Keuangan</button>
+              <button class="mh-btn" id="mh-btn-print-invoice" style="margin: 0;">🖨️ Ke Halaman Keuangan</button>
+            </div>
+            <div class="mh-list-section" id="mh-keuangan-container">
+              <div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center; padding: 20px;">Klik tombol di atas untuk memuat riwayat pembayaran keuangan Anda.</div>
+            </div>
+          </div>
+
+          <!-- Tab: KRS & Kelas -->
+          <div class="mh-tab-content" id="mh-tab-krs">
+            <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); margin-bottom: 12px;">
+              <h3 style="font-size: 1.05rem;">🔍 Pencari Kelas & KRS</h3>
+              <p style="margin: 0; padding: 0; font-size: 0.78rem; color: var(--mh-text-muted);">Sinkronisasi KRS aktif dan cari jadwal kelas yang tersedia.</p>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+              <button class="mh-btn success-btn" id="mh-btn-load-krs-aktif" style="flex: 1; margin: 0; font-size: 0.74rem;">📚 Sinkronisasi KRS Aktif</button>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+              <input type="text" id="mh-krs-search-input" placeholder="Masukkan nama/kode mata kuliah..." style="flex: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.8rem; outline: none; font-family: var(--mh-font);">
+              <button class="mh-btn success-btn" id="mh-btn-search-kelas" style="margin: 0;">Cari Kelas</button>
+            </div>
+            <div class="mh-list-section" id="mh-krs-aktif-container" style="margin-bottom: 12px;"></div>
+            <div class="mh-list-section" id="mh-krs-results-container">
+              <div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center; padding: 20px;">Gunakan input pencarian di atas untuk mencari jadwal kelas yang tersedia.</div>
+            </div>
+          </div>
+
+          <!-- Tab: Tugas Akhir -->
+          <div class="mh-tab-content" id="mh-tab-tugas-akhir">
+            <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); margin-bottom: 12px;">
+              <h3 style="font-size: 1.05rem;">🎓 Tugas Akhir & Skripsi</h3>
+              <p style="margin: 0; padding: 0; font-size: 0.78rem; color: var(--mh-text-muted);">Pantau judul pengajuan, kuota pembimbing, dan riwayat bimbingan Anda.</p>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+              <button class="mh-btn success-btn" id="mh-btn-load-ta" style="flex: 1; margin: 0;">📊 Sinkronisasi Status Skripsi</button>
+            </div>
+            <div class="mh-list-section" id="mh-ta-container">
+              <div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center; padding: 20px;">Klik tombol di atas untuk memuat status dan riwayat bimbingan skripsi.</div>
+            </div>
+          </div>
+
+          <!-- Tab: Biodata & Akademik -->
+          <div class="mh-tab-content" id="mh-tab-biodata">
+            <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); margin-bottom: 12px;">
+              <h3 style="font-size: 1.05rem;">👤 Profil & Rekam Akademik</h3>
+              <p style="margin: 0; padding: 0; font-size: 0.78rem; color: var(--mh-text-muted);">Lihat data profil mahasiswa, IPK berjalan, dan progres IPS per semester.</p>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+              <button class="mh-btn success-btn" id="mh-btn-load-biodata" style="flex: 1; margin: 0;">🔄 Sinkronisasi Profil & Akademik</button>
+            </div>
+            <div id="mh-biodata-container">
+              <div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center; padding: 20px;">Klik tombol di atas untuk memuat data profil dan riwayat akademik Anda.</div>
+            </div>
+          </div>
+
+          <!-- Tab: Informasi -->
+          <div class="mh-tab-content" id="mh-tab-informasi">
+            <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); margin-bottom: 12px;">
+              <h3 style="font-size: 1.05rem;">📢 Informasi & Ketentuan Umum</h3>
+              <p style="margin: 0; padding: 0; font-size: 0.78rem; color: var(--mh-text-muted);">Informasi resmi, kode etik, panduan registrasi, dan kalender akademik Universitas Pamulang.</p>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+              <button class="mh-btn success-btn" id="mh-btn-load-informasi" style="flex: 1; margin: 0;">🔄 Sinkronisasi Informasi Kampus</button>
+            </div>
+            <div class="mh-list-section" id="mh-informasi-container">
+              <div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center; padding: 20px;">Klik tombol di atas untuk memuat daftar informasi dan dokumen panduan resmi.</div>
+            </div>
+          </div>
+
           <!-- Tab: Settings -->
           <div class="mh-tab-content" id="mh-tab-settings">
             <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05);">
@@ -1216,7 +1536,6 @@ function buildWidget() {
                 </div>
               </div>
             </div>
-
             <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); margin-top: 12px;">
               <h3 style="font-size: 1.05rem; margin-bottom: 8px;">Informasi Penggunaan</h3>
               <p style="margin: 0; padding: 0; font-size: 0.78rem; color: var(--mh-text-muted); line-height: 1.6;">
@@ -1225,8 +1544,8 @@ function buildWidget() {
             </div>
           </div>
 
-        </div>
-      </div>
+        </div><!-- end .mh-content-pane -->
+      </div><!-- end .mh-panel-layout -->
 
       <!-- Footer status bar -->
       <div class="mh-footer">
@@ -1574,9 +1893,27 @@ function renderCourses(searchQuery = '') {
       </div>
       <div class="mh-course-card-sub">Dosen: ${c.course.nama_dosen.split(',')[0]} ${c.dayOfWeek ? `(${c.dayOfWeek})` : ''}</div>
       ${sectionsHtml}
+      ${c.allFiles && c.allFiles.length > 0 ? `
+        <div class="mh-materi-download-row">
+          <span class="mh-download-status-text" id="mh-dl-status-${cIdx}">Tersedia ${c.allFiles.length} file materi</span>
+          <button class="mh-btn" id="mh-btn-dl-${cIdx}" style="padding: 4px 10px; font-size: 0.72rem; margin: 0;">
+            📥 Unduh Semua
+          </button>
+        </div>
+      ` : ''}
     `;
     
     container.appendChild(card);
+
+    if (c.allFiles && c.allFiles.length > 0) {
+      const dlBtn = card.querySelector(`#mh-btn-dl-${cIdx}`);
+      if (dlBtn) {
+        dlBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          downloadAllCourseMaterials(c.course.nama_mata_kuliah, c.allFiles, `mh-btn-dl-${cIdx}`, `mh-dl-status-${cIdx}`);
+        });
+      }
+    }
   });
 
   // Re-attach Accordion Trigger Listeners
@@ -1661,6 +1998,14 @@ async function loadWidgetData() {
     // Handle MyUnpam logic
     if (isMyUnpam) {
       loadMyUnpamAttendance();
+      // Load cached data
+      chrome.storage.local.get(['keuanganData', 'taData', 'krsData', 'informasiData', 'biodataData'], (res) => {
+        if (res.keuanganData) renderKeuangan(res.keuanganData);
+        if (res.taData) renderTugasAkhir(res.taData);
+        if (res.krsData) renderKrsAktif(res.krsData);
+        if (res.informasiData) renderInformasi(res.informasiData);
+        if (res.biodataData) renderBiodata(res.biodataData);
+      });
       return;
     }
 
@@ -1702,6 +2047,21 @@ async function loadWidgetData() {
         // Prepare courses for sorting by day
         allProcessedCourses = detailsResults.map(({ course, detail, error }) => {
           if (error || !detail || !detail.data) return null;
+
+          // Extract ALL downloadable files/modules
+          const allFiles = [];
+          detail.data.forEach(sec => {
+            if (!sec.sub_section) return;
+            sec.sub_section.forEach(sub => {
+              if (sub.file) {
+                allFiles.push({
+                  sectionName: sec.nama_section || sec.kode_section || 'Materi',
+                  title: sub.judul || 'Materi',
+                  fileId: sub.file
+                });
+              }
+            });
+          });
 
           const courseName = course.nama_mata_kuliah || "";
           const dayMatch = course.coursename ? course.coursename.match(/\(([^)]+)\)/) : null;
@@ -1768,7 +2128,8 @@ async function loadWidgetData() {
             sectionsList,
             totalTasks,
             completedTasks,
-            isFullyCompleted
+            isFullyCompleted,
+            allFiles
           };
         }).filter(c => c !== null);
 
@@ -1831,6 +2192,63 @@ function setupWidgetEventListeners() {
       renderAttendance(e.target.value);
     });
   }
+  // Action Button: Load Grades
+  const loadGradesAutoBtn = document.getElementById('mh-btn-load-grades-auto');
+  if (loadGradesAutoBtn) {
+    loadGradesAutoBtn.addEventListener('click', () => { fetchMyUnpamGrades(); });
+  }
+
+  // Action Button: Print Rangkuman Nilai PDF
+  const printRangkumanBtn = document.getElementById('mh-btn-print-rangkuman');
+  if (printRangkumanBtn) {
+    printRangkumanBtn.addEventListener('click', () => {
+      downloadPdf('https://my.unpam.ac.id/api/rangkuman-nilai/cetak', 'rangkuman_nilai.pdf');
+    });
+  }
+
+  // Action Button: Load Keuangan Data
+  const loadKeuanganBtn = document.getElementById('mh-btn-load-keuangan');
+  if (loadKeuanganBtn) {
+    loadKeuanganBtn.addEventListener('click', () => { fetchMyUnpamKeuangan(); });
+  }
+
+  // Action Button: Print Invoice Keuangan
+  const printInvoiceBtn = document.getElementById('mh-btn-print-invoice');
+  if (printInvoiceBtn) {
+    printInvoiceBtn.addEventListener('click', () => {
+      window.open('https://my.unpam.ac.id/keuangan', '_blank');
+    });
+  }
+
+  // Action Button: Search KRS Kelas
+  const searchKrsBtn = document.getElementById('mh-btn-search-kelas');
+  if (searchKrsBtn) {
+    searchKrsBtn.addEventListener('click', () => { searchMyUnpamKelas(); });
+  }
+
+  // Action Button: Load KRS Aktif
+  const loadKrsAktifBtn = document.getElementById('mh-btn-load-krs-aktif');
+  if (loadKrsAktifBtn) {
+    loadKrsAktifBtn.addEventListener('click', () => { fetchMyUnpamKrsAktif(); });
+  }
+
+  // Action Button: Load Tugas Akhir
+  const loadTaBtn = document.getElementById('mh-btn-load-ta');
+  if (loadTaBtn) {
+    loadTaBtn.addEventListener('click', () => { fetchMyUnpamTugasAkhir(); });
+  }
+
+  // Action Button: Load Biodata & Akademik
+  const loadBiodataBtn = document.getElementById('mh-btn-load-biodata');
+  if (loadBiodataBtn) {
+    loadBiodataBtn.addEventListener('click', () => { fetchMyUnpamBiodata(); });
+  }
+
+  // Action Button: Load Informasi Kampus
+  const loadInformasiBtn = document.getElementById('mh-btn-load-informasi');
+  if (loadInformasiBtn) {
+    loadInformasiBtn.addEventListener('click', () => { fetchMyUnpamInformasi(); });
+  }
 
   // Toggle Panel
   toggle.addEventListener('click', () => {
@@ -1855,13 +2273,15 @@ function setupWidgetEventListeners() {
   }
 
   // Search input change listener (real-time search)
-  searchInput.addEventListener('input', (e) => {
-    if (isMyUnpam) {
-      renderAttendance(e.target.value);
-    } else {
-      renderCourses(e.target.value);
-    }
-  });
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      if (isMyUnpam) {
+        renderAttendance(e.target.value);
+      } else {
+        renderCourses(e.target.value);
+      }
+    });
+  }
 
   // Action Button: Load Attendance (MyUnpam only)
   if (loadPresensiBtn) {
@@ -2311,7 +2731,7 @@ async function downloadAllCourseMaterials(courseName, files, buttonId, statusId)
       
       const blob = await response.blob();
       
-      // Determine file extension from Content-Type
+      // 1. Get default extension from Content-Type
       let ext = '.pdf';
       const contentType = response.headers.get('content-type') || '';
       if (contentType.includes('presentation') || contentType.includes('powerpoint')) ext = '.pptx';
@@ -2319,7 +2739,29 @@ async function downloadAllCourseMaterials(courseName, files, buttonId, statusId)
       else if (contentType.includes('spreadsheet') || contentType.includes('excel')) ext = '.xlsx';
       else if (contentType.includes('zip')) ext = '.zip';
 
-      const filename = `${courseName} - ${file.sectionName} - ${file.title}${ext}`.replace(/[\\/:*?"<>|]/g, '_');
+      // 2. Try to extract filename and extension from Content-Disposition header
+      const disposition = response.headers.get('content-disposition');
+      if (disposition) {
+        const filenameMatch = disposition.match(/filename\*?=["']?([^"';]+)/);
+        if (filenameMatch && filenameMatch[1]) {
+          const serverFilename = decodeURIComponent(filenameMatch[1].split("''").pop());
+          const dotIdx = serverFilename.lastIndexOf('.');
+          if (dotIdx !== -1) {
+            ext = serverFilename.substring(dotIdx);
+          }
+        }
+      }
+
+      // 3. Clean up the document title (strip pre-existing extension if it duplicates ext)
+      let titleClean = file.title.trim();
+      const extRegex = /\.(pdf|pptx|ppt|docx|doc|xlsx|xls|zip|rar|txt|png|jpg|jpeg)$/i;
+      if (extRegex.test(titleClean)) {
+        const matchedExt = titleClean.match(extRegex)[0];
+        ext = matchedExt;
+        titleClean = titleClean.replace(extRegex, '');
+      }
+
+      const filename = `${courseName} - ${file.sectionName} - ${titleClean}${ext}`.replace(/[\\/:*?"<>|]/g, '_');
       
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2473,6 +2915,7 @@ async function fetchMyUnpamGrades() {
 
   // Try standard academic records API endpoints in sequence
   const urls = [
+    'https://my.unpam.ac.id/api/rangkuman-nilai',
     'https://my.unpam.ac.id/api/akademik/mahasiswa/transkrip',
     'https://my.unpam.ac.id/api/akademik/transkrip',
     'https://my.unpam.ac.id/api/khs/mahasiswa',
@@ -2485,25 +2928,28 @@ async function fetchMyUnpamGrades() {
       const response = await fetch(url, { headers });
       if (response.ok) {
         const resJson = await response.json();
-        let list = resJson.data || resJson || [];
+        let list = resJson.rangkuman || resJson.data || resJson || [];
         
         if (Array.isArray(list) && list.length > 0) {
           // Format into gpaData groups by semester
           const grouped = {};
           list.forEach(item => {
-            const sem = item.semester || item.smt || 1;
+            const sem = item.isemester || item.semester || item.smt || 1;
             if (!grouped[sem]) grouped[sem] = [];
             grouped[sem].push({
-              name: item.nama_mata_kuliah || item.matakuliah || 'Mata Kuliah',
-              sks: parseInt(item.sks || item.sks_mata_kuliah || 2),
-              grade: item.nilai_huruf || item.nilai || 'A'
+              name: item.snama || item.nama_mata_kuliah || item.matakuliah || 'Mata Kuliah',
+              sks: parseInt(item.isks || item.sks || item.sks_mata_kuliah || 2),
+              grade: item.fgrade || item.nilai_huruf || item.nilai || 'A'
             });
           });
 
-          gpaData = Object.keys(grouped).map(sem => ({
-            semester: parseInt(sem),
-            courses: grouped[sem]
-          }));
+          gpaData = Object.keys(grouped)
+            .map(sem => parseInt(sem))
+            .sort((a, b) => a - b)
+            .map(sem => ({
+              semester: sem,
+              courses: grouped[sem]
+            }));
 
           chrome.storage.local.set({ gpaData });
           success = true;
@@ -2535,8 +2981,7 @@ function renderGradesCalculator() {
     if (result.gpaData && Array.isArray(result.gpaData)) {
       gpaData = result.gpaData;
     } else if (gpaData.length === 0) {
-      // Default: 1 empty semester
-      gpaData = [{ semester: 1, courses: [] }];
+      gpaData = [];
     }
 
     container.innerHTML = '';
@@ -2548,34 +2993,39 @@ function renderGradesCalculator() {
       'A': 4.0, 'A-': 3.75, 'B+': 3.5, 'B': 3.0, 'B-': 2.75, 'C+': 2.5, 'C': 2.0, 'D': 1.0, 'E': 0.0
     };
 
-    gpaData.forEach((sem, semIdx) => {
+    gpaData.forEach((sem) => {
       const box = document.createElement('div');
-      box.className = 'mh-semester-box';
+      box.className = 'mh-semester-box expanded';
       
       let coursesHtml = '';
       let semSks = 0;
       let semQualityPoints = 0;
 
-      sem.courses.forEach((c, cIdx) => {
+      sem.courses.forEach((c) => {
         const val = gradeValues[c.grade] !== undefined ? gradeValues[c.grade] : 4.0;
         semSks += c.sks;
         semQualityPoints += (c.sks * val);
         totalSks += c.sks;
         totalQualityPoints += (c.sks * val);
 
+        const getGradeClass = (grade) => {
+          const g = (grade || 'A').toUpperCase().trim();
+          if (g.startsWith('A')) return 'grade-a';
+          if (g.startsWith('B')) return 'grade-b';
+          if (g.startsWith('C')) return 'grade-c';
+          if (g.startsWith('D')) return 'grade-d';
+          if (g.startsWith('E')) return 'grade-e';
+          return 'grade-a';
+        };
+        const gradeClass = getGradeClass(c.grade);
+
         coursesHtml += `
-          <div class="mh-gpa-row">
-            <input type="text" class="mh-gpa-input-name" data-sem="${semIdx}" data-course="${cIdx}" value="${c.name}" placeholder="Mata Kuliah">
-            <select class="mh-gpa-select mh-gpa-select-sks" data-sem="${semIdx}" data-course="${cIdx}">
-              <option value="1" ${c.sks === 1 ? 'selected' : ''}>1 SKS</option>
-              <option value="2" ${c.sks === 2 ? 'selected' : ''}>2 SKS</option>
-              <option value="3" ${c.sks === 3 ? 'selected' : ''}>3 SKS</option>
-              <option value="4" ${c.sks === 4 ? 'selected' : ''}>4 SKS</option>
-            </select>
-            <select class="mh-gpa-select mh-gpa-select-grade" data-sem="${semIdx}" data-course="${cIdx}">
-              ${Object.keys(gradeValues).map(g => `<option value="${g}" ${c.grade === g ? 'selected' : ''}>Nilai: ${g}</option>`).join('')}
-            </select>
-            <button class="mh-gpa-btn-del" data-sem="${semIdx}" data-course="${cIdx}">❌</button>
+          <div class="mh-gpa-row-readonly">
+            <span class="mh-gpa-course-name">${c.name}</span>
+            <div class="mh-gpa-course-meta">
+              <span class="mh-gpa-course-sks">${c.sks} SKS</span>
+              <span class="mh-grade-badge ${gradeClass}">${c.grade}</span>
+            </div>
           </div>
         `;
       });
@@ -2585,23 +3035,20 @@ function renderGradesCalculator() {
       box.innerHTML = `
         <div class="mh-semester-header">
           <span>Semester ${sem.semester} (IPS: ${semGpa})</span>
-          <span>${semSks} SKS &#9662;</span>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span>${semSks} SKS</span>
+            <span class="mh-semester-chevron" style="font-size: 0.7rem; transition: transform 0.2s;">&#9662;</span>
+          </div>
         </div>
-        <div class="mh-semester-body" style="display: flex;">
+        <div class="mh-semester-body">
           ${coursesHtml}
-          <button class="mh-btn" style="margin-top: 6px; padding: 6px; font-size: 0.76rem;" id="mh-btn-add-course-${semIdx}">
-            ➕ Tambah Mata Kuliah
-          </button>
         </div>
       `;
       
       container.appendChild(box);
 
-      // Event listener: Add Course inside Semester
-      box.querySelector(`#mh-btn-add-course-${semIdx}`).addEventListener('click', () => {
-        gpaData[semIdx].courses.push({ name: '', sks: 2, grade: 'A' });
-        chrome.storage.local.set({ gpaData });
-        renderGradesCalculator();
+      box.querySelector('.mh-semester-header').addEventListener('click', () => {
+        box.classList.toggle('expanded');
       });
     });
 
@@ -2612,45 +3059,348 @@ function renderGradesCalculator() {
     
     if (ipkEl) ipkEl.textContent = ipk;
     if (sksEl) sksEl.textContent = totalSks;
-
-    // Attach row input change listeners
-    container.querySelectorAll('.mh-gpa-input-name').forEach(input => {
-      input.addEventListener('change', (e) => {
-        const sem = parseInt(e.target.getAttribute('data-sem'));
-        const idx = parseInt(e.target.getAttribute('data-course'));
-        gpaData[sem].courses[idx].name = e.target.value;
-        chrome.storage.local.set({ gpaData });
-      });
-    });
-
-    container.querySelectorAll('.mh-gpa-select-sks').forEach(select => {
-      select.addEventListener('change', (e) => {
-        const sem = parseInt(e.target.getAttribute('data-sem'));
-        const idx = parseInt(e.target.getAttribute('data-course'));
-        gpaData[sem].courses[idx].sks = parseInt(e.target.value);
-        chrome.storage.local.set({ gpaData });
-        renderGradesCalculator();
-      });
-    });
-
-    container.querySelectorAll('.mh-gpa-select-grade').forEach(select => {
-      select.addEventListener('change', (e) => {
-        const sem = parseInt(e.target.getAttribute('data-sem'));
-        const idx = parseInt(e.target.getAttribute('data-course'));
-        gpaData[sem].courses[idx].grade = e.target.value;
-        chrome.storage.local.set({ gpaData });
-        renderGradesCalculator();
-      });
-    });
-
-    container.querySelectorAll('.mh-gpa-btn-del').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const sem = parseInt(e.currentTarget.getAttribute('data-sem'));
-        const idx = parseInt(e.currentTarget.getAttribute('data-course'));
-        gpaData[sem].courses.splice(idx, 1);
-        chrome.storage.local.set({ gpaData });
-        renderGradesCalculator();
-      });
-    });
   });
+}
+
+// =============================================
+// Helper: Download PDF with Auth Header
+// =============================================
+async function downloadPdf(url, filename) {
+  const token = getAuthToken();
+  if (!token) { showToast('Token tidak terdeteksi. Silakan login kembali.', true); return; }
+  showToast('Mengunduh PDF... ⏳');
+  try {
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    showToast('PDF berhasil diunduh! ✅');
+  } catch (e) {
+    showToast(`Gagal mengunduh PDF: ${e.message}`, true);
+  }
+}
+
+// =============================================
+// FETCH & RENDER: Keuangan
+// =============================================
+async function fetchMyUnpamKeuangan() {
+  const container = document.getElementById('mh-keuangan-container');
+  if (!container) return;
+  container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;padding:20px;">⏳ Memuat data keuangan...</div>`;
+  try {
+    const token = await getAuthToken();
+    const res = await fetch('https://my.unpam.ac.id/api/keuangan?semester=', { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    chrome.storage.local.set({ keuanganData: data });
+    renderKeuangan(data);
+  } catch (e) {
+    container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-danger);text-align:center;padding:20px;">❌ Gagal memuat: ${e.message}</div>`;
+  }
+}
+
+function renderKeuangan(data) {
+  const container = document.getElementById('mh-keuangan-container');
+  if (!container) return;
+
+  let list = [];
+  const semName = data?.semester?.nama_semester_registrasi || data?.semester?.id_semester_registrasi || '-';
+
+  if (data) {
+    if (Array.isArray(data)) {
+      list = data;
+    } else {
+      const t = Array.isArray(data.tagihan) ? data.tagihan : [];
+      const tl = Array.isArray(data.tagihan_lainnya) ? data.tagihan_lainnya : [];
+      const tsp = Array.isArray(data.tagihan_sp) ? data.tagihan_sp : [];
+      list = [...t, ...tl, ...tsp];
+    }
+  }
+
+  if (!list.length) { 
+    container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;">Tidak ada data tagihan.</div>`; 
+    return; 
+  }
+
+  container.innerHTML = list.map(item => {
+    const isLunas = item.status === 'LUNAS' || item.status_bayar === 'LUNAS';
+    const amount = Number(item.total_tagihan || item.jumlah || item.nominal || 0);
+    const semesterVal = item.semester || item.id_semester || semName;
+    
+    let payInfoHtml = '';
+    if (isLunas) {
+      const payDate = item.tanggal_bayar ? item.tanggal_bayar.split(' ')[0] : '';
+      const payPlace = item.nama_tempat_bayar || item.channel || '';
+      payInfoHtml = `<div style="font-size:0.7rem;color:var(--mh-text-muted);margin-top:4px;">Dibayar pada: ${payDate} ${payPlace ? `melalui ${payPlace}` : ''}</div>`;
+    }
+
+    return `
+      <div class="mh-keuangan-card">
+        <div style="font-weight:700;font-size:0.82rem;color:var(--mh-text-main);margin-bottom:4px;">${item.nama_tagihan || item.keterangan || item.nama || 'Tagihan'}</div>
+        <div style="font-size:0.76rem;color:var(--mh-text-muted);">Semester: ${semesterVal} &nbsp;|&nbsp; Jumlah: <span style="color:var(--mh-accent);font-weight:700;">Rp ${amount.toLocaleString('id-ID')}</span></div>
+        ${payInfoHtml}
+        <div style="margin-top:6px;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border-radius:6px;padding:2px 8px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:${isLunas ? 'var(--mh-success)' : 'var(--mh-warning)'};flex-shrink:0;"></span>
+          <span style="font-size:0.68rem;color:var(--mh-text-main);font-weight:600;">${item.status_bayar || item.status || 'Belum Bayar'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// =============================================
+// FETCH & RENDER: KRS Aktif
+// =============================================
+async function fetchMyUnpamKrsAktif() {
+  const btn = document.getElementById('mh-btn-load-krs-aktif');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Memuat...'; }
+  try {
+    const token = await getAuthToken();
+    const res = await fetch('https://my.unpam.ac.id/api/krs', { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    chrome.storage.local.set({ krsData: data });
+    renderKrsAktif(data);
+    showToast('KRS Aktif berhasil dimuat! 🎉');
+  } catch (e) {
+    showToast(`Gagal memuat KRS: ${e.message}`, true);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📚 Sinkronisasi KRS Aktif'; }
+  }
+}
+
+function renderKrsAktif(data) {
+  const container = document.getElementById('mh-krs-aktif-container');
+  if (!container) return;
+  const list = data?.mahasiswa?.krs || data?.krs || [];
+  if (!list.length) { container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;padding:10px;">Belum ada data KRS aktif.</div>`; return; }
+  let html = `<div style="font-weight:bold;font-size:0.8rem;color:var(--mh-text-main);margin-bottom:6px;">KRS Aktif Semester Ini:</div>`;
+  list.forEach(item => {
+    html += `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-left:4px solid var(--mh-success);border-radius:8px;padding:8px 10px;margin-bottom:8px;">
+      <div style="font-weight:bold;color:#fff;font-size:0.78rem;">${item.nama_mata_kuliah || item.mata_kuliah?.nama_mata_kuliah || 'Mata Kuliah'}</div>
+      <div style="margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;font-size:0.72rem;color:var(--mh-text-muted);">
+        <span>SKS: <b>${item.sks_mata_kuliah || item.mata_kuliah?.sks || '-'}</b></span>
+        <span>Kelas: <b>${item.id_kelas || '-'}</b></span>
+        <span>Kode: <b>${item.id_mata_kuliah || '-'}</b></span>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+async function searchMyUnpamKelas() {
+  const input = document.getElementById('mh-krs-search-input');
+  const container = document.getElementById('mh-krs-results-container');
+  if (!input || !container) return;
+  const q = input.value.trim();
+  if (!q) { container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;">Masukkan nama atau kode mata kuliah.</div>`; return; }
+  container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;padding:20px;">⏳ Mencari kelas...</div>`;
+  try {
+    const token = await getAuthToken();
+    const res = await fetch(`https://my.unpam.ac.id/api/krs/search-kelas?q=${encodeURIComponent(q)}`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : (data?.data || data?.kelas || []);
+    if (!list.length) { container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;">Tidak ada kelas ditemukan untuk "${q}".</div>`; return; }
+    container.innerHTML = list.map(c => `
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px;margin-bottom:8px;">
+        <div style="font-weight:bold;color:#fff;font-size:0.8rem;">${c.nama_mata_kuliah || c.nama || '-'}</div>
+        <div style="font-size:0.72rem;color:var(--mh-text-muted);margin-top:4px;">Kelas: ${c.id_kelas || '-'} &nbsp;|&nbsp; Sisa Kuota: <span style="color:${(c.sisa_kuota||0)>0?'var(--mh-success)':'var(--mh-danger)'};">${c.sisa_kuota ?? '-'}</span></div>
+      </div>`).join('');
+  } catch (e) {
+    container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-danger);text-align:center;">❌ Gagal mencari: ${e.message}</div>`;
+  }
+}
+
+// =============================================
+// FETCH & RENDER: Tugas Akhir
+// =============================================
+async function fetchMyUnpamTugasAkhir() {
+  const container = document.getElementById('mh-ta-container');
+  if (!container) return;
+  container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;padding:20px;">⏳ Memuat data skripsi...</div>`;
+  try {
+    const token = await getAuthToken();
+    const headers = { 'Authorization': `Bearer ${token}` };
+    const [taRes, dosenRes] = await Promise.all([
+      fetch('https://my.unpam.ac.id/api/tugas-akhir/mahasiswa', { headers }),
+      fetch('https://my.unpam.ac.id/api/tugas-akhir/dosen-pembimbing', { headers })
+    ]);
+    const taData = await taRes.json();
+    const dosenData = dosenRes.ok ? await dosenRes.json() : null;
+    const combined = { taData, dosenData };
+    chrome.storage.local.set({ taData: combined });
+    renderTugasAkhir(combined);
+  } catch (e) {
+    container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-danger);text-align:center;padding:20px;">❌ Gagal memuat: ${e.message}</div>`;
+  }
+}
+
+function renderTugasAkhir({ taData, dosenData }) {
+  const container = document.getElementById('mh-ta-container');
+  if (!container) return;
+  const ta = taData?.data_tugas_akhir || taData;
+  if (!ta || !ta.judul_tugas_akhir) { container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;">Belum ada data tugas akhir terdaftar.</div>`; return; }
+  const statusColor = ta.id_status_ajuan_tugas_akhir === 'A00' ? 'var(--mh-success)' : 'var(--mh-accent)';
+  let dosenHtml = '';
+  if (dosenData && Array.isArray(dosenData)) {
+    dosenHtml = dosenData.map(d => `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.75rem;"><span style="color:var(--mh-text-muted);">${d.jabatan || 'Pembimbing'}</span><br><b style="color:var(--mh-text-main);">${d.nama_dosen || d.nama || '-'}</b></div>`).join('');
+  }
+  container.innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.06));border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:14px;margin-bottom:12px;">
+      <div style="font-size:0.65rem;color:var(--mh-accent);font-weight:700;letter-spacing:1px;margin-bottom:6px;">${ta.jenis_tugas_akhir || 'SKRIPSI'}</div>
+      <div style="font-size:0.85rem;font-weight:800;color:var(--mh-text-main);line-height:1.4;margin-bottom:10px;">${ta.judul_tugas_akhir}</div>
+      <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border-radius:6px;padding:3px 8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:${statusColor};box-shadow:0 0 6px ${statusColor};"></span>
+        <span style="font-size:0.7rem;color:var(--mh-text-main);font-weight:600;">${ta.status_ajuan_tugas_akhir || 'AKTIF'}</span>
+      </div>
+    </div>
+    ${dosenHtml ? `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;"><div style="font-size:0.75rem;font-weight:700;color:var(--mh-text-main);margin-bottom:8px;">👨‍🏫 Dosen Pembimbing</div>${dosenHtml}</div>` : ''}
+  `;
+}
+
+// =============================================
+// FETCH & RENDER: Informasi Kampus
+// =============================================
+async function fetchMyUnpamInformasi() {
+  const container = document.getElementById('mh-informasi-container');
+  if (!container) return;
+  container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;padding:20px;">⏳ Memuat informasi kampus...</div>`;
+  try {
+    const token = await getAuthToken();
+    const res = await fetch('https://my.unpam.ac.id/api/informasi', { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : [];
+    chrome.storage.local.set({ informasiData: list });
+    renderInformasi(list);
+  } catch (e) {
+    container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-danger);text-align:center;padding:20px;">❌ Gagal memuat: ${e.message}</div>`;
+  }
+}
+
+function renderInformasi(list) {
+  const container = document.getElementById('mh-informasi-container');
+  if (!container) return;
+  if (!Array.isArray(list) || !list.length) { container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;">Tidak ada informasi baru saat ini.</div>`; return; }
+  container.innerHTML = list.map(item => `
+    <a href="${item.url || '#'}" target="_blank" style="text-decoration:none;color:inherit;display:block;margin-bottom:10px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-left:3px solid var(--mh-accent);border-radius:10px;padding:12px;cursor:pointer;">
+        <div style="font-weight:bold;font-size:0.8rem;color:#fff;margin-bottom:4px;">📢 ${item.judul}</div>
+        <div style="font-size:0.72rem;color:var(--mh-text-muted);">${item.pesan || ''}</div>
+        <div style="font-size:0.65rem;color:var(--mh-accent);margin-top:6px;font-weight:bold;">🔗 Buka Dokumen ↗</div>
+      </div>
+    </a>`).join('');
+}
+
+// =============================================
+// FETCH & RENDER: Biodata + IPK/IPS Tracker
+// =============================================
+async function fetchMyUnpamBiodata() {
+  const container = document.getElementById('mh-biodata-container');
+  if (!container) return;
+  container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;padding:20px;">⏳ Memuat data profil dan akademik...</div>`;
+  try {
+    const token = await getAuthToken();
+    const headers = { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' };
+    const [biodataRes, akademikRes] = await Promise.all([
+      fetch('https://my.unpam.ac.id/api/biodata/mahasiswa', { headers }),
+      fetch('https://my.unpam.ac.id/api/biodata/mahasiswa/akademik', { headers })
+    ]);
+    if (!biodataRes.ok || !akademikRes.ok) throw new Error('Gagal memuat data dari server.');
+    const biodata = await biodataRes.json();
+    const akademik = await akademikRes.json();
+    const combined = { biodata, akademik };
+    chrome.storage.local.set({ biodataData: combined });
+    renderBiodata(combined);
+  } catch (e) {
+    const c = document.getElementById('mh-biodata-container');
+    if (c) c.innerHTML = `<div class="mh-list-item" style="color:var(--mh-danger);text-align:center;padding:20px;">❌ Gagal memuat: ${e.message}</div>`;
+  }
+}
+
+function renderBiodata({ biodata, akademik }) {
+  const container = document.getElementById('mh-biodata-container');
+  if (!container) return;
+  const agama = { '1':'Islam','2':'Kristen','3':'Katolik','4':'Hindu','5':'Budha','6':'Kong Hu Cu' };
+  const jenkel = biodata.id_jenis_kelamin === 'L' ? '♂ Laki-laki' : '♀ Perempuan';
+  const statusMap = { 'A':'Aktif','N':'Non-Aktif','L':'Lulus','C':'Cuti' };
+  const statusColor = biodata.id_status_mahasiswa === 'A' ? 'var(--mh-success)' : 'var(--mh-danger)';
+  const ipk = parseFloat(biodata.ipk_semester_berjalan || 0).toFixed(2);
+  const ipkColor = ipk >= 3.5 ? 'var(--mh-success)' : ipk >= 3.0 ? 'var(--mh-accent)' : ipk >= 2.5 ? '#f59e0b' : 'var(--mh-danger)';
+  const ringDash = 188;
+  const ringOffset = ringDash - (ringDash * Math.min(parseFloat(ipk) / 4.0, 1));
+  const semArr = Array.isArray(akademik?.semester) ? akademik.semester : [];
+  let semRows = '';
+  semArr.forEach((s, i) => {
+    const ips = parseFloat(s.ips || 0).toFixed(2);
+    const ipsColor = ips >= 3.5 ? 'var(--mh-success)' : ips >= 3.0 ? 'var(--mh-accent)' : ips >= 2.5 ? '#f59e0b' : 'var(--mh-danger)';
+    const barW = Math.min((parseFloat(ips) / 4.0) * 100, 100);
+    semRows += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+      <td style="padding:7px 8px;font-size:0.78rem;color:var(--mh-text-muted);">Sem ${i+1}</td>
+      <td style="padding:7px 8px;font-size:0.72rem;color:var(--mh-text-muted);">${s.id_semester||'-'}</td>
+      <td style="padding:7px 8px;text-align:center;"><span style="font-size:0.82rem;font-weight:700;color:${ipsColor};">${ips}</span></td>
+      <td style="padding:7px 8px;"><div style="background:rgba(255,255,255,0.06);border-radius:4px;height:6px;width:80px;"><div style="background:${ipsColor};width:${barW}%;height:100%;border-radius:4px;"></div></div></td>
+      <td style="padding:7px 8px;font-size:0.78rem;color:var(--mh-text-muted);text-align:center;">${s.sks_diambil||'-'}</td>
+      <td style="padding:7px 8px;font-size:0.78rem;color:var(--mh-text-muted);text-align:center;">${s.sks_lulus||'-'}</td>
+    </tr>`;
+  });
+  container.innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(139,92,246,0.08));border:1px solid rgba(99,102,241,0.25);border-radius:14px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:16px;">
+      <div style="flex-shrink:0;position:relative;width:72px;height:72px;">
+        <svg viewBox="0 0 72 72" style="width:72px;height:72px;transform:rotate(-90deg);">
+          <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>
+          <circle cx="36" cy="36" r="30" fill="none" stroke="${ipkColor}" stroke-width="6" stroke-dasharray="${ringDash}" stroke-dashoffset="${ringOffset}" stroke-linecap="round"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <span style="font-size:1.05rem;font-weight:800;color:${ipkColor};line-height:1;">${ipk}</span>
+          <span style="font-size:0.52rem;color:var(--mh-text-muted);font-weight:600;">IPK</span>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.95rem;font-weight:800;color:var(--mh-text-main);margin-bottom:3px;">${biodata.nama_mahasiswa||'-'}</div>
+        <div style="font-size:0.73rem;color:var(--mh-accent);font-weight:600;margin-bottom:5px;">${biodata.nim||'-'}</div>
+        <div style="font-size:0.7rem;color:var(--mh-text-muted);">${biodata.nama_prodi||biodata.id_prodi||'-'}<br><span style="color:rgba(255,255,255,0.4);">${biodata.nama_fakultas||''}</span></div>
+        <div style="margin-top:6px;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border-radius:6px;padding:3px 8px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:${statusColor};box-shadow:0 0 6px ${statusColor};flex-shrink:0;"></span>
+          <span style="font-size:0.68rem;color:var(--mh-text-main);font-weight:600;">${statusMap[biodata.id_status_mahasiswa]||biodata.id_status_mahasiswa}</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;text-align:center;">
+        <div style="font-size:1.2rem;font-weight:800;color:var(--mh-accent);">${biodata.sks_semester_berjalan||'-'}</div>
+        <div style="font-size:0.65rem;color:var(--mh-text-muted);margin-top:3px;">Total SKS</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;text-align:center;">
+        <div style="font-size:1.2rem;font-weight:800;color:var(--mh-text-main);">${biodata.semester||'-'}</div>
+        <div style="font-size:0.65rem;color:var(--mh-text-muted);margin-top:3px;">Semester</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;text-align:center;">
+        <div style="font-size:1.2rem;font-weight:800;color:${ipkColor};">${ipk}</div>
+        <div style="font-size:0.65rem;color:var(--mh-text-muted);margin-top:3px;">IPK</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--mh-text-main);margin-bottom:10px;">📋 DATA MAHASISWA</div>
+      ${[['Tempat, Tgl Lahir',`${biodata.tempat_lahir_mahasiswa||'-'}, ${biodata.tanggal_lahir_mahasiswa||'-'}`],['Jenis Kelamin',jenkel],['Agama',agama[biodata.id_agama]||'-'],['Shift',biodata.id_shift||'-'],['Kurikulum',biodata.tahun_kurikulum||'-'],['No. HP',biodata.no_hp_mahasiswa||'-'],['Email',biodata.alamat_email||'-'],['Alamat',biodata.alamat_mahasiswa||'-']].map(([l,v])=>`<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);gap:8px;"><span style="font-size:0.72rem;color:var(--mh-text-muted);flex-shrink:0;">${l}</span><span style="font-size:0.72rem;color:var(--mh-text-main);text-align:right;word-break:break-word;">${v}</span></div>`).join('')}
+    </div>
+    ${semArr.length > 0 ? `
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--mh-text-main);margin-bottom:10px;">📈 RIWAYAT IPS PER SEMESTER</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;min-width:340px;">
+          <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+            <th style="text-align:left;font-size:0.65rem;color:var(--mh-text-muted);padding:4px 8px;font-weight:600;">SEM</th>
+            <th style="text-align:left;font-size:0.65rem;color:var(--mh-text-muted);padding:4px 8px;font-weight:600;">PERIODE</th>
+            <th style="text-align:center;font-size:0.65rem;color:var(--mh-text-muted);padding:4px 8px;font-weight:600;">IPS</th>
+            <th style="font-size:0.65rem;color:var(--mh-text-muted);padding:4px 8px;font-weight:600;">GRAFIK</th>
+            <th style="text-align:center;font-size:0.65rem;color:var(--mh-text-muted);padding:4px 8px;font-weight:600;">SKS ∑</th>
+            <th style="text-align:center;font-size:0.65rem;color:var(--mh-text-muted);padding:4px 8px;font-weight:600;">LULUS</th>
+          </tr></thead>
+          <tbody>${semRows}</tbody>
+        </table>
+      </div>
+    </div>` : ''}
+  `;
 }
