@@ -1325,6 +1325,10 @@ function buildWidget() {
               <span class="mh-sidebar-icon">📈</span>
               <span class="mh-sidebar-label">Rangkuman Nilai</span>
             </div>
+            <div class="mh-sidebar-item" data-tab="kuesioner-myunpam">
+              <span class="mh-sidebar-icon">📋</span>
+              <span class="mh-sidebar-label">Kuesioner Dosen</span>
+            </div>
             <div class="mh-sidebar-item" data-tab="keuangan">
               <span class="mh-sidebar-icon">💳</span>
               <span class="mh-sidebar-label">Keuangan</span>
@@ -1442,6 +1446,25 @@ function buildWidget() {
             </div>
             <div class="mh-list-section" id="mh-gpa-semesters-container">
               <!-- Rendered dynamic semesters -->
+            </div>
+          </div>
+
+          <!-- Tab: Kuesioner Dosen -->
+          <div class="mh-tab-content" id="mh-tab-kuesioner-myunpam">
+            <div class="mh-welcome-banner" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.05); margin-bottom: 12px;">
+              <h3 style="font-size: 1.05rem;">📋 Kuesioner Dosen (MyUnpam)</h3>
+              <p style="margin: 0; padding: 0; font-size: 0.78rem; color: var(--mh-text-muted);">Isi kuesioner penilaian dosen secara otomatis dengan nilai maksimal (Selalu/Sangat Mampu) agar Anda bisa melihat KHS.</p>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+              <button class="mh-btn success-btn" id="mh-btn-load-kuesioner-myunpam" style="flex: 1; margin: 0;">
+                🔄 Muat Daftar Kuesioner
+              </button>
+              <button class="mh-btn" id="mh-btn-fill-all-kuesioner-myunpam" style="margin: 0; background: linear-gradient(135deg, #10b981, #059669); color: white; display: none;">
+                ⚡ Isi Semua Kuesioner
+              </button>
+            </div>
+            <div class="mh-list-section" id="mh-kuesioner-myunpam-container">
+              <div class="mh-list-item" style="color: var(--mh-text-muted); text-align: center; padding: 20px;">Klik tombol di atas untuk memuat daftar mata kuliah yang memerlukan pengisian kuesioner.</div>
             </div>
           </div>
 
@@ -2174,6 +2197,13 @@ function setupWidgetEventListeners() {
       document.querySelectorAll('.mh-tab-content').forEach(c => c.classList.remove('active'));
       const activeTabContent = document.getElementById(`mh-tab-${tabName}`);
       if (activeTabContent) activeTabContent.classList.add('active');
+
+      // Auto-load tab data on switch
+      if (tabName === 'nilai') {
+        renderGradesCalculator();
+      } else if (tabName === 'kuesioner-myunpam') {
+        fetchMyUnpamKuesionerList();
+      }
     });
   });
 
@@ -2210,6 +2240,18 @@ function setupWidgetEventListeners() {
   const loadKeuanganBtn = document.getElementById('mh-btn-load-keuangan');
   if (loadKeuanganBtn) {
     loadKeuanganBtn.addEventListener('click', () => { fetchMyUnpamKeuangan(); });
+  }
+
+  // Action Button: Load MyUnpam Kuesioner Dosen
+  const loadKuesionerMyUnpamBtn = document.getElementById('mh-btn-load-kuesioner-myunpam');
+  if (loadKuesionerMyUnpamBtn) {
+    loadKuesionerMyUnpamBtn.addEventListener('click', () => { fetchMyUnpamKuesionerList(); });
+  }
+
+  // Action Button: Fill All MyUnpam Kuesioner Dosen
+  const fillAllKuesionerMyUnpamBtn = document.getElementById('mh-btn-fill-all-kuesioner-myunpam');
+  if (fillAllKuesionerMyUnpamBtn) {
+    fillAllKuesionerMyUnpamBtn.addEventListener('click', () => { fillAllMyUnpamKuesioner(); });
   }
 
   // Action Button: Print Invoice Keuangan
@@ -3403,4 +3445,414 @@ function renderBiodata({ biodata, akademik }) {
       </div>
     </div>` : ''}
   `;
+}
+
+// =============================================
+// FETCH & RENDER: Kuesioner Dosen (MyUnpam)
+// =============================================
+let myUnpamKhsData = [];
+
+async function fetchMyUnpamKuesionerList() {
+  const container = document.getElementById('mh-kuesioner-myunpam-container');
+  const fillAllBtn = document.getElementById('mh-btn-fill-all-kuesioner-myunpam');
+  if (!container) return;
+
+  container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;padding:20px;">⏳ Memuat daftar KHS & kuesioner...</div>`;
+  if (fillAllBtn) fillAllBtn.style.display = 'none';
+
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-danger);text-align:center;padding:20px;">❌ Token tidak terdeteksi. Silakan login kembali.</div>`;
+      return;
+    }
+
+    const res = await fetch('https://my.unpam.ac.id/api/khs', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    
+    const data = await res.json();
+    myUnpamKhsData = data?.khs || [];
+    
+    renderMyUnpamKuesionerList(myUnpamKhsData);
+  } catch (e) {
+    container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-danger);text-align:center;padding:20px;">❌ Gagal memuat: ${e.message}</div>`;
+  }
+}
+
+function renderMyUnpamKuesionerList(khsList) {
+  const container = document.getElementById('mh-kuesioner-myunpam-container');
+  const fillAllBtn = document.getElementById('mh-btn-fill-all-kuesioner-myunpam');
+  if (!container) return;
+
+  if (!khsList || khsList.length === 0) {
+    container.innerHTML = `<div class="mh-list-item" style="color:var(--mh-text-muted);text-align:center;padding:20px;">Tidak ada data mata kuliah pada semester ini.</div>`;
+    return;
+  }
+
+  const pendingKuesioner = khsList.filter(item => item.kuesioner === 0 && item.dapat_isi_kuesioner === 1);
+  if (pendingKuesioner.length > 0 && fillAllBtn) {
+    fillAllBtn.style.display = 'inline-block';
+    fillAllBtn.textContent = `⚡ Isi Semua Kuesioner (${pendingKuesioner.length})`;
+  } else if (fillAllBtn) {
+    fillAllBtn.style.display = 'none';
+  }
+
+  container.innerHTML = khsList.map((item, idx) => {
+    let statusClass = 'pending';
+    let statusText = 'Belum Diisi';
+    let buttonHtml = '';
+
+    if (item.kuesioner === 1) {
+      statusClass = 'done';
+      statusText = 'Sudah Diisi';
+    } else if (item.dapat_isi_kuesioner === 0) {
+      statusClass = 'pending';
+      statusText = 'Tidak Dapat Diisi';
+    } else {
+      buttonHtml = `
+        <button class="mh-btn success-btn" style="margin: 0; padding: 4px 10px; font-size: 0.72rem;" id="mh-btn-fill-kue-${idx}">
+          📋 Isi Otomatis
+        </button>
+      `;
+    }
+
+    const cardStyle = item.dapat_isi_kuesioner === 0 ? 'opacity: 0.65;' : '';
+
+    return `
+      <div class="mh-keuangan-card" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; ${cardStyle}">
+        <div>
+          <div style="font-weight:700;font-size:0.82rem;color:var(--mh-text-main);margin-bottom:4px;">${item.snama || 'Mata Kuliah'}</div>
+          <div style="font-size:0.76rem;color:var(--mh-text-muted);">Kelas: ${item.kelas || '-'} &nbsp;|&nbsp; SKS: ${item.isks || '-'}</div>
+          <div style="margin-top:6px;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border-radius:6px;padding:2px 8px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:${statusClass === 'done' ? 'var(--mh-success)' : (item.dapat_isi_kuesioner === 0 ? '#6b7280' : 'var(--mh-warning)')};flex-shrink:0;"></span>
+            <span style="font-size:0.68rem;color:var(--mh-text-main);font-weight:600;">${statusText}</span>
+          </div>
+        </div>
+        <div>
+          ${buttonHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Attach button click listeners
+  khsList.forEach((item, idx) => {
+    if (item.kuesioner === 0 && item.dapat_isi_kuesioner === 1) {
+      const btn = document.getElementById(`mh-btn-fill-kue-${idx}`);
+      if (btn) {
+        btn.addEventListener('click', async () => {
+          btn.disabled = true;
+          btn.textContent = '⏳ Mengisi...';
+          try {
+            const success = await fillSingleMyUnpamKuesioner(item);
+            if (success) {
+              showToast(`Kuesioner ${item.snama} berhasil diisi! 🎉`);
+              fetchMyUnpamKuesionerList();
+            }
+          } catch (e) {
+            showToast(`Gagal: ${e.message}`, true);
+            btn.disabled = false;
+            btn.textContent = '📋 Isi Otomatis';
+          }
+        });
+      }
+    }
+  });
+}
+
+async function startAutoFillMyUnpamKuesioner() {
+  showToast("Memulai pengisian kuesioner otomatis... ⚡");
+  
+  let loopCount = 0;
+  const maxLoops = 20; // prevent infinite loops in case of errors
+  
+  while (loopCount < maxLoops) {
+    loopCount++;
+    
+    // Find all radio elements (native & Quasar)
+    const nativeGroups = {};
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+      const name = radio.name;
+      if (name) {
+        if (!nativeGroups[name]) nativeGroups[name] = [];
+        nativeGroups[name].push(radio);
+      }
+    });
+    
+    let clickedCount = 0;
+    
+    Object.keys(nativeGroups).forEach(name => {
+      const group = nativeGroups[name];
+      if (group.length >= 4) {
+        const opt = group[group.length - 1]; // option 4 (poin 4) is last
+        if (opt && !opt.checked) {
+          opt.click();
+          opt.checked = true;
+          ['change', 'click', 'input'].forEach(t => opt.dispatchEvent(new Event(t, { bubbles: true })));
+          clickedCount++;
+        }
+      }
+    });
+
+    const quasarGroups = [];
+    document.querySelectorAll('.q-option-group, .v-input--radio-group, .row').forEach(group => {
+      const radios = group.querySelectorAll('.q-radio, [role="radio"], .v-radio');
+      if (radios.length >= 4) {
+        quasarGroups.push(radios);
+      }
+    });
+
+    quasarGroups.forEach(group => {
+      const opt = group[group.length - 1];
+      if (opt && opt.getAttribute('aria-checked') !== 'true') {
+        opt.click();
+        clickedCount++;
+      }
+    });
+
+    // Support tables
+    document.querySelectorAll('tr').forEach(row => {
+      const radios = row.querySelectorAll('input[type="radio"], .q-radio, [role="radio"]');
+      if (radios.length >= 4) {
+        const opt = radios[radios.length - 1];
+        // For native inputs in tables
+        if (opt instanceof HTMLInputElement) {
+          if (!opt.checked) {
+            opt.click();
+            opt.checked = true;
+            ['change', 'click', 'input'].forEach(t => opt.dispatchEvent(new Event(t, { bubbles: true })));
+            clickedCount++;
+          }
+        } else if (opt && opt.getAttribute('aria-checked') !== 'true') {
+          opt.click();
+          clickedCount++;
+        }
+      }
+    });
+
+    await new Promise(r => setTimeout(r, 400));
+
+    // Find next / save buttons
+    const buttons = [...document.querySelectorAll('button, .q-btn, .v-btn')];
+    
+    const nextBtn = buttons.find(b => {
+      const text = b.textContent || b.innerText || '';
+      return text.toLowerCase().includes('selanjutnya') || text.toLowerCase().includes('next');
+    });
+
+    const saveBtn = buttons.find(b => {
+      const text = b.textContent || b.innerText || '';
+      return text.toLowerCase().includes('simpan') || text.toLowerCase().includes('save') || text.toLowerCase().includes('submit');
+    });
+
+    // Check if we are at the final phase (Unsur-Unsur Pelaksanaan Penilaian Pembelajaran)
+    const pageText = document.body.innerText || '';
+    const isFinalPhase = pageText.includes("UNSUR-UNSUR") || (!nextBtn && saveBtn);
+
+    if (isFinalPhase && saveBtn) {
+      showToast("Mencapai fase akhir. Menyimpan kuesioner... 💾");
+      saveBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      await new Promise(r => setTimeout(r, 500));
+      saveBtn.click();
+      
+      // Wait for submission to complete
+      await new Promise(r => setTimeout(r, 2000));
+      break;
+    } else if (nextBtn) {
+      showToast("Mengisi halaman saat ini dan lanjut... ➡️");
+      nextBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      await new Promise(r => setTimeout(r, 400));
+      nextBtn.click();
+      
+      // Wait for next section to render
+      await new Promise(r => setTimeout(r, 1200));
+    } else {
+      break;
+    }
+  }
+}
+
+function openMyUnpamKuesionerFor(courseName) {
+  const cleanName = courseName.toUpperCase().trim();
+  const rows = [...document.querySelectorAll('tr, .q-table tbody tr, .v-data-table tbody tr')];
+  let clicked = false;
+  
+  for (const row of rows) {
+    if (row.innerText.toUpperCase().includes(cleanName)) {
+      const clickable = [...row.querySelectorAll('button, a, [role="button"], .q-btn, .v-btn, .q-chip')]
+        .find(el => {
+          const text = (el.textContent || el.innerText || '').toLowerCase();
+          const id = el.id || '';
+          return !id.startsWith('mh-') && (text.includes('kuesioner') || text.includes('isi') || text.includes('survey') || el.classList.contains('q-btn'));
+        });
+      
+      if (clickable) {
+        clickable.click();
+        clicked = true;
+        break;
+      }
+    }
+  }
+
+  if (!clicked) {
+    const btns = [...document.querySelectorAll('button, a, [role="button"], .q-btn, .v-btn')]
+      .filter(el => {
+        const text = (el.textContent || el.innerText || '').toLowerCase();
+        const id = el.id || '';
+        return !id.startsWith('mh-') && (text.includes('kuesioner') || text.includes('isi'));
+      });
+    if (btns.length > 0) {
+      btns[0].click();
+      clicked = true;
+    }
+  }
+}
+
+function injectFloatingAutoFillKuesionerButton() {
+  if (document.getElementById('mh-floating-auto-fill-kue')) return;
+  
+  const btn = document.createElement('button');
+  btn.id = 'mh-floating-auto-fill-kue';
+  btn.innerHTML = '⚡ Isi Kuesioner (Selalu)';
+  btn.style.cssText = `
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 100000;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 18px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  `;
+  
+  btn.addEventListener('mouseenter', () => {
+    btn.style.transform = 'translateY(-2px)';
+    btn.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.6)';
+  });
+  
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = 'translateY(0)';
+    btn.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
+  });
+  
+  btn.addEventListener('click', () => {
+    startAutoFillMyUnpamKuesioner();
+  });
+  
+  document.body.appendChild(btn);
+}
+
+// Auto-detect questionnaire and show floating button
+setInterval(() => {
+  if (!isMyUnpam) return;
+  
+  const hasRadios = document.querySelectorAll('input[type="radio"], .q-radio, [role="radio"]').length >= 5;
+  const hasNavigationBtn = [...document.querySelectorAll('button, .q-btn, .v-btn')].some(b => {
+    const text = b.textContent || b.innerText || '';
+    return text.includes('Selanjutnya') || text.includes('Simpan');
+  });
+
+  const existingBtn = document.getElementById('mh-floating-auto-fill-kue');
+  
+  if (hasRadios && hasNavigationBtn) {
+    if (!existingBtn) {
+      injectFloatingAutoFillKuesionerButton();
+    }
+  } else {
+    if (existingBtn) {
+      existingBtn.remove();
+    }
+  }
+}, 2000);
+
+async function fillSingleMyUnpamKuesioner(item) {
+  // 1. Close helper panel
+  const panel = document.getElementById('mh-dashboard-panel');
+  const toggle = document.getElementById('mh-dashboard-toggle');
+  if (panel) panel.classList.remove('active');
+  if (toggle) toggle.classList.remove('active');
+
+  // 2. Click native KHS button
+  openMyUnpamKuesionerFor(item.snama);
+
+  // 3. Wait for modal/radios to appear
+  let found = false;
+  for (let attempt = 0; attempt < 10; attempt++) {
+    await new Promise(r => setTimeout(r, 500));
+    const hasRadios = document.querySelectorAll('input[type="radio"], .q-radio, [role="radio"]').length >= 5;
+    if (hasRadios) {
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    throw new Error('Gagal membuka modal kuesioner. Harap buka secara manual.');
+  }
+
+  // 4. Fill via DOM state machine
+  await startAutoFillMyUnpamKuesioner();
+
+  // 5. Re-open panel & refresh
+  if (panel) panel.classList.add('active');
+  if (toggle) toggle.classList.add('active');
+  
+  return true;
+}
+
+async function fillAllMyUnpamKuesioner() {
+  const pending = myUnpamKhsData.filter(item => item.kuesioner === 0 && item.dapat_isi_kuesioner === 1);
+  if (pending.length === 0) {
+    showToast('Semua kuesioner sudah diisi! 🎉');
+    return;
+  }
+
+  showToast(`Memulai pengisian otomatis untuk ${pending.length} mata kuliah... ⚡`);
+  
+  // Close helper panel
+  const panel = document.getElementById('mh-dashboard-panel');
+  const toggle = document.getElementById('mh-dashboard-toggle');
+  if (panel) panel.classList.remove('active');
+  if (toggle) toggle.classList.remove('active');
+
+  for (let i = 0; i < pending.length; i++) {
+    const item = pending[i];
+    showToast(`Mengisi kuesioner (${i + 1}/${pending.length}): ${item.snama}`);
+    
+    openMyUnpamKuesionerFor(item.snama);
+    
+    let foundRadios = false;
+    for (let attempt = 0; attempt < 10; attempt++) {
+      await new Promise(r => setTimeout(r, 500));
+      const hasRadios = document.querySelectorAll('input[type="radio"], .q-radio, [role="radio"]').length >= 5;
+      if (hasRadios) {
+        foundRadios = true;
+        break;
+      }
+    }
+    
+    if (foundRadios) {
+      await startAutoFillMyUnpamKuesioner();
+      await new Promise(r => setTimeout(r, 1500)); // Delay between courses
+    } else {
+      showToast(`Gagal membuka kuesioner untuk ${item.snama}`, true);
+    }
+  }
+
+  showToast('Pengisian seluruh kuesioner selesai! 🎉');
+  if (panel) panel.classList.add('active');
+  if (toggle) toggle.classList.add('active');
+  fetchMyUnpamKuesionerList();
 }
