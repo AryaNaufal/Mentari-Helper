@@ -3585,7 +3585,7 @@ async function startAutoFillMyUnpamKuesioner() {
     
     Object.keys(nativeGroups).forEach(name => {
       const group = nativeGroups[name];
-      if (group.length >= 4) {
+      if (group.length >= 2) {
         const opt = group[group.length - 1]; // option 4 (poin 4) is last
         if (opt && !opt.checked) {
           opt.click();
@@ -3599,7 +3599,7 @@ async function startAutoFillMyUnpamKuesioner() {
     const quasarGroups = [];
     document.querySelectorAll('.q-option-group, .v-input--radio-group, .row').forEach(group => {
       const radios = group.querySelectorAll('.q-radio, [role="radio"], .v-radio');
-      if (radios.length >= 4) {
+      if (radios.length >= 2) {
         quasarGroups.push(radios);
       }
     });
@@ -3615,7 +3615,7 @@ async function startAutoFillMyUnpamKuesioner() {
     // Support tables
     document.querySelectorAll('tr').forEach(row => {
       const radios = row.querySelectorAll('input[type="radio"], .q-radio, [role="radio"]');
-      if (radios.length >= 4) {
+      if (radios.length >= 2) {
         const opt = radios[radios.length - 1];
         // For native inputs in tables
         if (opt instanceof HTMLInputElement) {
@@ -3637,19 +3637,33 @@ async function startAutoFillMyUnpamKuesioner() {
     // Find next / save buttons
     const buttons = [...document.querySelectorAll('button, .q-btn, .v-btn')];
     
-    const nextBtn = buttons.find(b => {
+    let nextBtn = buttons.find(b => {
       const text = b.textContent || b.innerText || '';
       return text.toLowerCase().includes('selanjutnya') || text.toLowerCase().includes('next');
     });
 
-    const saveBtn = buttons.find(b => {
+    if (!nextBtn) {
+      nextBtn = [...document.querySelectorAll('a, div, span, [role="button"]')].find(el => {
+        const text = (el.textContent || el.innerText || '').trim().toLowerCase();
+        return text === 'selanjutnya' || text === 'next';
+      });
+    }
+
+    let saveBtn = buttons.find(b => {
       const text = b.textContent || b.innerText || '';
       return text.toLowerCase().includes('simpan') || text.toLowerCase().includes('save') || text.toLowerCase().includes('submit');
     });
 
-    // Check if we are at the final phase (Unsur-Unsur Pelaksanaan Penilaian Pembelajaran)
+    if (!saveBtn) {
+      saveBtn = [...document.querySelectorAll('a, div, span, [role="button"]')].find(el => {
+        const text = (el.textContent || el.innerText || '').trim().toLowerCase();
+        return text === 'simpan' || text === 'save' || text === 'submit';
+      });
+    }
+
+    // Check if we are at the final phase (Unsur-Unsur / Kepuasan Mahasiswa / single phase)
     const pageText = document.body.innerText || '';
-    const isFinalPhase = pageText.includes("UNSUR-UNSUR") || (!nextBtn && saveBtn);
+    const isFinalPhase = pageText.includes("UNSUR-UNSUR") || pageText.includes("KEPUASAN MAHASISWA") || (!nextBtn && saveBtn);
 
     if (isFinalPhase && saveBtn) {
       showToast("Mencapai fase akhir. Menyimpan kuesioner... 💾");
@@ -3758,15 +3772,19 @@ function injectFloatingAutoFillKuesionerButton() {
 setInterval(() => {
   if (!isMyUnpam) return;
   
+  const pageText = document.body.innerText || '';
   const hasRadios = document.querySelectorAll('input[type="radio"], .q-radio, [role="radio"]').length >= 5;
-  const hasNavigationBtn = [...document.querySelectorAll('button, .q-btn, .v-btn')].some(b => {
-    const text = b.textContent || b.innerText || '';
-    return text.includes('Selanjutnya') || text.includes('Simpan');
-  });
+  const hasAnyRadios = document.querySelectorAll('input[type="radio"], .q-radio, [role="radio"]').length >= 2;
+  const isKuesionerPage = hasAnyRadios && (
+    pageText.includes("KEPUASAN MAHASISWA") || 
+    pageText.includes("KUESIONER") || 
+    pageText.includes("penilaian terhadap kinerja dosen") ||
+    hasRadios
+  );
 
   const existingBtn = document.getElementById('mh-floating-auto-fill-kue');
   
-  if (hasRadios && hasNavigationBtn) {
+  if (isKuesionerPage) {
     if (!existingBtn) {
       injectFloatingAutoFillKuesionerButton();
     }
@@ -3775,7 +3793,7 @@ setInterval(() => {
       existingBtn.remove();
     }
   }
-}, 2000);
+}, 1000);
 
 async function fillSingleMyUnpamKuesioner(item) {
   // 1. Close helper panel
